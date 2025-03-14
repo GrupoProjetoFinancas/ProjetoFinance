@@ -2,10 +2,62 @@
 title: "Big Data for Finance"
 ---
 
-This is a Quarto website.
+# Empresas de Sistemas na Bolsa de Nova York (NYSE)
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Aqui estão cinco grandes empresas de software e sistemas que são negociadas na **Bolsa de Nova York (NYSE):**
+
+| Código | Empresa | Descrição |
+|------------------|----------------------------|--------------------------|
+| **SAP** | SAP SE | Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.). |
+| **ORCL** | Oracle Corporation | Forte em bancos de dados, ERP e soluções na nuvem. |
+| **CRM** | Salesforce Inc. | Líder em CRM (Customer Relationship Management) e soluções SaaS. |
+| **NOW** | ServiceNow, Inc. | Focada em automação de fluxos de trabalho e TI empresarial. |
+| **IBM** | IBM Corporation | Forte em infraestrutura de TI, nuvem híbrida e IA (Watson). |
+
+## 📌 Como Investir?
+
+Essas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.
+
+------------------------------------------------------------------------
 
 ```{r}
-1 + 1
+# Carregar pacotes necessários
+library(quantmod)
+
+
+tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")  # SAP, Oracle, Salesforce, ServiceNow, IBM
+
+# Baixar dados históricos do Yahoo Finance até 31/12/2024
+getSymbols(tickers, src = "yahoo", from = "2023-01-01", to = "2024-12-31")
+
+# Exibir as primeiras linhas dos dados de uma das empresas (ex: IBM)
+head(NOW)
+```
+
+```{r}
+library(ggplot2)
+library(tidyr)
+
+# Criar um dataframe para armazenar os preços de fechamento
+stock_data <- data.frame(
+  Date = index(SAP),
+  SAP = Cl(SAP),
+  ORCL = Cl(ORCL),
+  CRM = Cl(CRM),
+  NOW = Cl(NOW),
+  IBM = Cl(IBM)
+)
+
+# Transformar os dados para o formato longo (tidy) para usar no ggplot2
+stock_data_long <- stock_data %>%
+  pivot_longer(cols = -Date, names_to = "Company", values_to = "Close_Price")
+
+# Criar o gráfico de séries temporais
+ggplot(stock_data_long, aes(x = Date, y = Close_Price, color = Company)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Série Temporal dos Preços de Fechamento das Empresas",
+       x = "Data",
+       y = "Preço de Fechamento (USD)",
+       color = "Empresa") +
+  theme_minimal()
 ```

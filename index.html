@@ -141,8 +141,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse" id="toc-empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="nav-link active" data-scroll-target="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse">Empresas de Sistemas na Bolsa de Nova York (NYSE)</a>
+  <ul class="collapse">
+  <li><a href="#como-investir" id="toc-como-investir" class="nav-link" data-scroll-target="#como-investir">📌 Como Investir?</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -166,16 +175,137 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This is a Quarto website.</p>
-<p>To learn more about Quarto websites visit <a href="https://quarto.org/docs/websites" class="uri">https://quarto.org/docs/websites</a>.</p>
+<section id="empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="level1">
+<h1>Empresas de Sistemas na Bolsa de Nova York (NYSE)</h1>
+<p>Aqui estão cinco grandes empresas de software e sistemas que são negociadas na <strong>Bolsa de Nova York (NYSE):</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 38%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Código</th>
+<th>Empresa</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>SAP</strong></td>
+<td>SAP SE</td>
+<td>Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.).</td>
+</tr>
+<tr class="even">
+<td><strong>ORCL</strong></td>
+<td>Oracle Corporation</td>
+<td>Forte em bancos de dados, ERP e soluções na nuvem.</td>
+</tr>
+<tr class="odd">
+<td><strong>CRM</strong></td>
+<td>Salesforce Inc.</td>
+<td>Líder em CRM (Customer Relationship Management) e soluções SaaS.</td>
+</tr>
+<tr class="even">
+<td><strong>NOW</strong></td>
+<td>ServiceNow, Inc.</td>
+<td>Focada em automação de fluxos de trabalho e TI empresarial.</td>
+</tr>
+<tr class="odd">
+<td><strong>IBM</strong></td>
+<td>IBM Corporation</td>
+<td>Forte em infraestrutura de TI, nuvem híbrida e IA (Watson).</td>
+</tr>
+</tbody>
+</table>
+<section id="como-investir" class="level2">
+<h2 class="anchored" data-anchor-id="como-investir">📌 Como Investir?</h2>
+<p>Essas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.</p>
+<hr>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Carregar pacotes necessários</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Carregando pacotes exigidos: xts</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Carregando pacotes exigidos: zoo</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Anexando pacote: 'zoo'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Os seguintes objetos são mascarados por 'package:base':
+
+    as.Date, as.Date.numeric</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Carregando pacotes exigidos: TTR</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tickers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"SAP"</span>, <span class="st">"ORCL"</span>, <span class="st">"CRM"</span>, <span class="st">"NOW"</span>, <span class="st">"IBM"</span>)  <span class="co"># SAP, Oracle, Salesforce, ServiceNow, IBM</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Baixar dados históricos do Yahoo Finance até 31/12/2024</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">getSymbols</span>(tickers, <span class="at">src =</span> <span class="st">"yahoo"</span>, <span class="at">from =</span> <span class="st">"2023-01-01"</span>, <span class="at">to =</span> <span class="st">"2024-12-31"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<pre><code>[1] "SAP"  "ORCL" "CRM"  "NOW"  "IBM" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exibir as primeiras linhas dos dados de uma das empresas (ex: IBM)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(NOW)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           NOW.Open NOW.High NOW.Low NOW.Close NOW.Volume NOW.Adjusted
+2023-01-03   395.08   398.65  380.65    385.50    1088000       385.50
+2023-01-04   390.95   397.06  384.74    393.85    1404900       393.85
+2023-01-05   388.45   389.70  365.25    366.32    1790000       366.32
+2023-01-06   371.59   371.59  353.62    366.53    2676700       366.53
+2023-01-09   373.88   392.99  373.19    378.56    2087800       378.56
+2023-01-10   374.37   383.77  374.37    380.84    1064600       380.84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar um dataframe para armazenar os preços de fechamento</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>stock_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Date =</span> <span class="fu">index</span>(SAP),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">SAP =</span> <span class="fu">Cl</span>(SAP),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ORCL =</span> <span class="fu">Cl</span>(ORCL),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">CRM =</span> <span class="fu">Cl</span>(CRM),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">NOW =</span> <span class="fu">Cl</span>(NOW),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">IBM =</span> <span class="fu">Cl</span>(IBM)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformar os dados para o formato longo (tidy) para usar no ggplot2</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>stock_data_long <span class="ot">&lt;-</span> stock_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Date, <span class="at">names_to =</span> <span class="st">"Company"</span>, <span class="at">values_to =</span> <span class="st">"Close_Price"</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar o gráfico de séries temporais</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(stock_data_long, <span class="fu">aes</span>(<span class="at">x =</span> Date, <span class="at">y =</span> Close_Price, <span class="at">color =</span> Company)) <span class="sc">+</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Série Temporal dos Preços de Fechamento das Empresas"</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Data"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Preço de Fechamento (USD)"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Empresa"</span>) <span class="sc">+</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
