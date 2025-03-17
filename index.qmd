@@ -2,6 +2,14 @@
 title: "Big Data for Finance"
 ---
 
+## Por:
+
+Arthur Costa Schaitza - <https://faexai.github.io/portfolio2/>
+
+Pamela Roland -
+
+Matheus Kochaki de Liz -
+
 # Empresas de Sistemas na Bolsa de Nova York (NYSE)
 
 Aqui estão cinco grandes empresas de software e sistemas que são negociadas na **Bolsa de Nova York (NYSE):**
