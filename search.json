@@ -18,7 +18,7 @@
     "href": "index.html#como-investir",
     "title": "Big Data for Finance",
     "section": "📌 Como Investir?",
-    "text": "📌 Como Investir?\nEssas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.\n\n\n# Carregar pacotes necessários\nlibrary(quantmod)\n\nCarregando pacotes exigidos: xts\n\n\nCarregando pacotes exigidos: zoo\n\n\n\nAnexando pacote: 'zoo'\n\n\nOs seguintes objetos são mascarados por 'package:base':\n\n    as.Date, as.Date.numeric\n\n\nCarregando pacotes exigidos: TTR\n\n\nRegistered S3 method overwritten by 'quantmod':\n  method            from\n  as.zoo.data.frame zoo \n\ntickers &lt;- c(\"SAP\", \"ORCL\", \"CRM\", \"NOW\", \"IBM\")  # SAP, Oracle, Salesforce, ServiceNow, IBM\n\n# Baixar dados históricos do Yahoo Finance até 31/12/2024\ngetSymbols(tickers, src = \"yahoo\", from = \"2023-01-01\", to = \"2024-12-31\")\n\n[1] \"SAP\"  \"ORCL\" \"CRM\"  \"NOW\"  \"IBM\" \n\n# Exibir as primeiras linhas dos dados de uma das empresas (ex: IBM)\nhead(NOW)\n\n           NOW.Open NOW.High NOW.Low NOW.Close NOW.Volume NOW.Adjusted\n2023-01-03   395.08   398.65  380.65    385.50    1088000       385.50\n2023-01-04   390.95   397.06  384.74    393.85    1404900       393.85\n2023-01-05   388.45   389.70  365.25    366.32    1790000       366.32\n2023-01-06   371.59   371.59  353.62    366.53    2676700       366.53\n2023-01-09   373.88   392.99  373.19    378.56    2087800       378.56\n2023-01-10   374.37   383.77  374.37    380.84    1064600       380.84\n\n\n\nlibrary(ggplot2)\nlibrary(tidyr)\n\n# Criar um dataframe para armazenar os preços de fechamento\nstock_data &lt;- data.frame(\n  Date = index(SAP),\n  SAP = Cl(SAP),\n  ORCL = Cl(ORCL),\n  CRM = Cl(CRM),\n  NOW = Cl(NOW),\n  IBM = Cl(IBM)\n)\n\n# Transformar os dados para o formato longo (tidy) para usar no ggplot2\nstock_data_long &lt;- stock_data %&gt;%\n  pivot_longer(cols = -Date, names_to = \"Company\", values_to = \"Close_Price\")\n\n# Criar o gráfico de séries temporais\nggplot(stock_data_long, aes(x = Date, y = Close_Price, color = Company)) +\n  geom_line(linewidth = 1) +\n  labs(title = \"Série Temporal dos Preços de Fechamento das Empresas\",\n       x = \"Data\",\n       y = \"Preço de Fechamento (USD)\",\n       color = \"Empresa\") +\n  theme_minimal()"
+    "text": "📌 Como Investir?\nEssas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.\n\n\n\nCarregando pacotes exigidos: xts\n\n\nCarregando pacotes exigidos: zoo\n\n\n\nAnexando pacote: 'zoo'\n\n\nOs seguintes objetos são mascarados por 'package:base':\n\n    as.Date, as.Date.numeric\n\n\nCarregando pacotes exigidos: TTR\n\n\nRegistered S3 method overwritten by 'quantmod':\n  method            from\n  as.zoo.data.frame zoo \n\n\n[1] \"SAP\"  \"ORCL\" \"CRM\"  \"NOW\"  \"IBM\" \n\n\n           NOW.Open NOW.High NOW.Low NOW.Close NOW.Volume NOW.Adjusted\n2023-01-03   395.08   398.65  380.65    385.50    1088000       385.50\n2023-01-04   390.95   397.06  384.74    393.85    1404900       393.85\n2023-01-05   388.45   389.70  365.25    366.32    1790000       366.32\n2023-01-06   371.59   371.59  353.62    366.53    2676700       366.53\n2023-01-09   373.88   392.99  373.19    378.56    2087800       378.56\n2023-01-10   374.37   383.77  374.37    380.84    1064600       380.84"
   },
   {
     "objectID": "index.html#por",
@@ -40,5 +40,148 @@
     "title": "Big Data for Finance",
     "section": "Nova Solução",
     "text": "Nova Solução\n# Carregar pacotes necessários\nlibrary(quantmod)\nlibrary(GARCH)\n\n# Obter dados de preços da ação Apple (AAPL)\n# Usar quantmod para obter dados históricos\nAAPL &lt;- getSymbols(\"AAPL\", from = \"2023-01-01\")\n\n# Converter a série de preços em um dataframe\nAAPL_df &lt;- data.frame(AAPL)\n\n# Calcular os log-reforços\nAAPL_df$LogReturn &lt;- diff(AAPL_df$AAPL)\n\n# Analisar a distribuição dos log-reforços\n# Calcular a frequência de reforços positivos e negativos\npositive_returns &lt;- sum(AAPL_df$LogReturn &gt; 0)\nnegative_returns &lt;- sum(AAPL_df$LogReturn &lt; 0)\n\ncat(\"Frequência de reforços positivos:\", positive_returns, \"\\n\")\ncat(\"Frequência de reforços negativos:\", negative_returns, \"\\n\")\n\n# Calcular a volatilidade usando o desvio padrão\nvolatility_sd &lt;- sd(AAPL_df$LogReturn)\ncat(\"Volatilidade (Desvio Padrão):\", volatility_sd, \"\\n\")\n\n# Ajustar um modelo GARCH\n# Obter dados de preços\nprices &lt;- AAPL$AAPL\n\n# Ajustar o modelo GARCH\ngarch_model &lt;- GARCH(data = prices, model = \"GARCH\")\n\n# Extrair parâmetros do modelo\nalpha &lt;- garch_model$estimates[\"alpha\"]\nbeta &lt;- garch_model$estimates[\"beta\"]\nsigma &lt;- garch_model$estimates[\"sigma\"]\n\n# Calcular a volatilidade usando o modelo GARCH\nvolatility_garch &lt;- sigma\n\n# Imprimir resultados\ncat(\"Volatilidade (Modelo GARCH):\", volatility_garch, \"\\n\")\n\n# Criar um gráfico da distribuição dos log-reforços\nhist(AAPL_df$LogReturn, main = \"Distribuição dos Log-reforços da Apple\", xlab = \"Log-reforços\", col = \"skyblue\")\n\nExplicação em Markdown\nEste código R analisa a série de preços da ação Apple (AAPL) para entender sua volatilidade e distribuição de retornos. Ele realiza as seguintes etapas:\n\nObtenção de Dados:\n\nUtiliza o pacote quantmod para baixar dados históricos de preços da ação Apple a partir de 1º de janeiro de 2023. getSymbols() é uma função conveniente para obter dados financeiros de várias fontes.\n\nCálculo dos Log-reforços:\n\nCalcula os log-reforços usando a fórmula padrão: p_t = ln(p_t) - ln(p_t-1). Isso transforma os retornos percentuais em uma escala logarítmica, que é mais adequada para análise de volatilidade. A função diff() é usada para calcular a diferença entre os preços consecutivos.\n\nAnálise da Distribuição dos Log-reforços:\n\nCalcula a frequência de log-reforços positivos e negativos. Isso fornece uma ideia da direção predominante dos retornos. Um número maior de log-reforços positivos indica que a ação tem tido um desempenho melhor, enquanto um número maior de log-reforços negativos sugere o oposto.\n\nCálculo da Volatilidade:\n\nUsando o Desvio Padrão: Calcula a volatilidade usando o desvio padrão dos log-reforços. O desvio padrão é uma medida da dispersão dos dados em torno da média e é uma estimativa simples da volatilidade.\nUsando o Modelo GARCH:\n\nAjuste do Modelo: Ajusta um modelo GARCH (Generalized Autoregressive Conditional Heteroskedasticity) aos log-reforços. O modelo GARCH é um modelo estatístico que captura a heteroscedasticidade (variância não constante) na série temporal. O pacote GARCH é usado para ajustar o modelo.\nExtração de Parâmetros: Extrai os parâmetros alpha e beta do modelo GARCH ajustado.\nCálculo da Volatilidade: Calcula a volatilidade usando o parâmetro sigma do modelo GARCH.\n\n\nVisualização:\n\nCria um histograma da distribuição dos log-reforços. Isso permite visualizar a forma da distribuição dos retornos e identificar quaisquer características importantes, como a presença de caudas pesadas (indicando maior probabilidade de eventos extremos).\n\n\nInterpretação dos Resultados:\n\nDistribuição dos Log-reforços: A análise da frequência de reforços positivos e negativos fornece uma visão geral do desempenho da ação.\nVolatilidade (Desvio Padrão): O desvio padrão é uma medida inicial da volatilidade.\nVolatilidade (Modelo GARCH): O modelo GARCH fornece uma estimativa mais precisa da volatilidade, levando em consideração a dependência da variância ao longo do tempo. O modelo GARCH é geralmente mais preciso do que o desvio padrão, especialmente para séries temporais com heteroscedasticidade.\n\nObservações:\n\nEste código é um exemplo básico e pode ser expandido para incluir análises mais avançadas, como testes de estacionariedade, análise de resíduos e previsão de volatilidade.\nA escolha do modelo GARCH apropriado pode depender das características específicas da série temporal.\nA análise da volatilidade é apenas uma parte da análise de investimento. É importante considerar outros fatores, como o risco, o retorno e os objetivos do investidor."
+  },
+  {
+    "objectID": "companies.html",
+    "href": "companies.html",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "",
+    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#visão-geral-das-principais-empresas-de-software-corporativo",
+    "href": "companies.html#visão-geral-das-principais-empresas-de-software-corporativo",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "",
+    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#sap",
+    "href": "companies.html#sap",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "SAP",
+    "text": "SAP\n\nHistória\nFundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.\n\n\nProdutos Principais\n\nSAP S/4HANA: ERP inteligente em tempo real\nSAP SuccessFactors: Solução de gestão de capital humano\nSAP Ariba: Plataforma de procurement digital\nSAP Concur: Gestão de despesas corporativas\nSAP Fieldglass: Gestão de força de trabalho contingente",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#salesforce",
+    "href": "companies.html#salesforce",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "Salesforce",
+    "text": "Salesforce\n\nHistória\nFundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack).\n\n\nProdutos Principais\n\nSales Cloud: CRM para equipes de vendas\nService Cloud: Plataforma de atendimento ao cliente\nMarketing Cloud: Automação de marketing\nCommerce Cloud: Soluções de e-commerce\nTableau: Análise e visualização de dados\nSlack: Colaboração corporativa",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#servicenow",
+    "href": "companies.html#servicenow",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "ServiceNow",
+    "text": "ServiceNow\n\nHistória\nCriada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano.\n\n\nProdutos Principais\n\nNow Platform: Plataforma unificada de automação\nITSM: Gestão de serviços de TI\nCustomer Service Management: Atendimento ao cliente\nHR Service Delivery: Automação de RH\nApp Engine: Desenvolvimento low-code",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#ibm",
+    "href": "companies.html#ibm",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "IBM",
+    "text": "IBM\n\nHistória\nFundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica.\n\n\nProdutos Principais\n\nWatson: Plataforma de IA empresarial\nIBM Cloud: Infraestrutura e plataforma cloud\nRed Hat: Soluções open source corporativas\nIBM Security: Segurança cibernética\nIBM Z: Mainframes para missão crítica",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#oracle",
+    "href": "companies.html#oracle",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "Oracle",
+    "text": "Oracle\n\nHistória\nFundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).\n\n\nProdutos Principais\n\nOracle Database: Sistema de gerenciamento de banco de dados\nOracle Cloud Infrastructure (OCI): Plataforma de nuvem\nOracle Fusion: Suíte de aplicações empresariais\nJava: Linguagem de programação\nNetSuite: ERP em nuvem para médias empresas\n\n\n\nComparativo de Foco Estratégico\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#análise-comparativa",
+    "href": "companies.html#análise-comparativa",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "Análise Comparativa",
+    "text": "Análise Comparativa",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#história",
+    "href": "companies.html#história",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "### História",
+    "text": "### História",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#fundada-em-1972-em-walldorf-alemanha-por-cinco-ex-funcionários-da-ibm-a-sap-systems-applications-products-in-data-processing-revolucionou-o-software-empresarial-com-o-lançamento-do-r2-mainframe-e-depois-o-r3-client-server.-tornou-se-líder-global-em-soluções-erp.",
+    "href": "companies.html#fundada-em-1972-em-walldorf-alemanha-por-cinco-ex-funcionários-da-ibm-a-sap-systems-applications-products-in-data-processing-revolucionou-o-software-empresarial-com-o-lançamento-do-r2-mainframe-e-depois-o-r3-client-server.-tornou-se-líder-global-em-soluções-erp.",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "Fundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.",
+    "text": "Fundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#produtos-principais--",
+    "href": "companies.html#produtos-principais--",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "### Produtos Principais -",
+    "text": "### Produtos Principais -",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#sap-s4hana-erp-inteligente-em-tempo-real--",
+    "href": "companies.html#sap-s4hana-erp-inteligente-em-tempo-real--",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "**SAP S/4HANA**: ERP inteligente em tempo real -",
+    "text": "**SAP S/4HANA**: ERP inteligente em tempo real -",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
+  },
+  {
+    "objectID": "companies.html#sap-successfactors-solução-de-gestão-de-capital-humano---sap-ariba-plataforma-de-procurement-digital---sap-concur-gestão-de-despesas-corporativas---sap-fieldglass-gestão-de-força-de-trabalho-contingente-salesforce-história-fundada-em-1999-por-marc-benioff-em-san-francisco-pioneira-no-modelo-saas-software-as-a-service.-revolucionou-o-crm-ao-mover-soluções-empresariais-para-a-nuvem.-cresceu-através-de-aquisições-estratégicas-mulesoft-tableau-slack.-produtos-principais---sales-cloud-crm-para-equipes-de-vendas---service-cloud-plataforma-de-atendimento-ao-cliente---marketing-cloud-automação-de-marketing---commerce-cloud-soluções-de-e-commerce---tableau-análise-e-visualização-de-dados---slack-colaboração-corporativa-servicenow-história-criada-em-2004-por-fred-luddy-em-santa-clara-ca.-surgiu-como-plataforma-de-itsm-it-service-management-e-expandiu-para-automação-de-fluxos-de-trabalho-corporativos.-destaque-por-crescimento-consistente-acima-de-30-ao-ano.-produtos-principais---now-platform-plataforma-unificada-de-automação---itsm-gestão-de-serviços-de-ti---customer-service-management-atendimento-ao-cliente---hr-service-delivery-automação-de-rh---app-engine-desenvolvimento-low-code-ibm-história-fundada-em-1911-como-computing-tabulating-recording-company-tornou-se-international-business-machines-em-1924.-pioneira-em-mainframes-liderou-a-revolução-da-computação-empresarial.-recente-foco-em-ia-e-computação-quântica.-produtos-principais---watson-plataforma-de-ia-empresarial---ibm-cloud-infraestrutura-e-plataforma-cloud---red-hat-soluções-open-source-corporativas---ibm-security-segurança-cibernética---ibm-z-mainframes-para-missão-crítica-oracle-história-fundada-em-1977-por-larry-ellison-em-redwood-city-ca.-tornou-se-líder-em-bancos-de-dados-relacionais-com-o-oracle-database.-expandiu-para-aplicações-empresariais-e-cloud-através-de-aquisições-peoplesoft-siebel-netsuite.-produtos-principais---oracle-database-sistema-de-gerenciamento-de-banco-de-dados---oracle-cloud-infrastructure-oci-plataforma-de-nuvem---oracle-fusion-suíte-de-aplicações-empresariais---java-linguagem-de-programação---netsuite-erp-em-nuvem-para-médias-empresas-comparativo-de-foco-estratégico-empresa-segmento-primário-diferencial-competitivo----sap-erp-integração-profunda-industrial-salesforce-crm-ecossistema-de-aplicações-servicenow-itsm-automação-de-fluxos-de-trabalho-ibm-ia-cloud-híbrida-soluções-para-grandes-empresas-oracle-banco-de-dados-performance-e-escalabilidade",
+    "href": "companies.html#sap-successfactors-solução-de-gestão-de-capital-humano---sap-ariba-plataforma-de-procurement-digital---sap-concur-gestão-de-despesas-corporativas---sap-fieldglass-gestão-de-força-de-trabalho-contingente-salesforce-história-fundada-em-1999-por-marc-benioff-em-san-francisco-pioneira-no-modelo-saas-software-as-a-service.-revolucionou-o-crm-ao-mover-soluções-empresariais-para-a-nuvem.-cresceu-através-de-aquisições-estratégicas-mulesoft-tableau-slack.-produtos-principais---sales-cloud-crm-para-equipes-de-vendas---service-cloud-plataforma-de-atendimento-ao-cliente---marketing-cloud-automação-de-marketing---commerce-cloud-soluções-de-e-commerce---tableau-análise-e-visualização-de-dados---slack-colaboração-corporativa-servicenow-história-criada-em-2004-por-fred-luddy-em-santa-clara-ca.-surgiu-como-plataforma-de-itsm-it-service-management-e-expandiu-para-automação-de-fluxos-de-trabalho-corporativos.-destaque-por-crescimento-consistente-acima-de-30-ao-ano.-produtos-principais---now-platform-plataforma-unificada-de-automação---itsm-gestão-de-serviços-de-ti---customer-service-management-atendimento-ao-cliente---hr-service-delivery-automação-de-rh---app-engine-desenvolvimento-low-code-ibm-história-fundada-em-1911-como-computing-tabulating-recording-company-tornou-se-international-business-machines-em-1924.-pioneira-em-mainframes-liderou-a-revolução-da-computação-empresarial.-recente-foco-em-ia-e-computação-quântica.-produtos-principais---watson-plataforma-de-ia-empresarial---ibm-cloud-infraestrutura-e-plataforma-cloud---red-hat-soluções-open-source-corporativas---ibm-security-segurança-cibernética---ibm-z-mainframes-para-missão-crítica-oracle-história-fundada-em-1977-por-larry-ellison-em-redwood-city-ca.-tornou-se-líder-em-bancos-de-dados-relacionais-com-o-oracle-database.-expandiu-para-aplicações-empresariais-e-cloud-através-de-aquisições-peoplesoft-siebel-netsuite.-produtos-principais---oracle-database-sistema-de-gerenciamento-de-banco-de-dados---oracle-cloud-infrastructure-oci-plataforma-de-nuvem---oracle-fusion-suíte-de-aplicações-empresariais---java-linguagem-de-programação---netsuite-erp-em-nuvem-para-médias-empresas-comparativo-de-foco-estratégico-empresa-segmento-primário-diferencial-competitivo----sap-erp-integração-profunda-industrial-salesforce-crm-ecossistema-de-aplicações-servicenow-itsm-automação-de-fluxos-de-trabalho-ibm-ia-cloud-híbrida-soluções-para-grandes-empresas-oracle-banco-de-dados-performance-e-escalabilidade",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "**SAP SuccessFactors**: Solução de gestão de capital humano - **SAP Ariba**: Plataforma de procurement digital - **SAP Concur**: Gestão de despesas corporativas - **SAP Fieldglass**: Gestão de força de trabalho contingente ## Salesforce ### História Fundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack). ### Produtos Principais - **Sales Cloud**: CRM para equipes de vendas - **Service Cloud**: Plataforma de atendimento ao cliente - **Marketing Cloud**: Automação de marketing - **Commerce Cloud**: Soluções de e-commerce - **Tableau**: Análise e visualização de dados - **Slack**: Colaboração corporativa ## ServiceNow ### História Criada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano. ### Produtos Principais - **Now Platform**: Plataforma unificada de automação - **ITSM**: Gestão de serviços de TI - **Customer Service Management**: Atendimento ao cliente - **HR Service Delivery**: Automação de RH - **App Engine**: Desenvolvimento low-code ## IBM ### História Fundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica. ### Produtos Principais - **Watson**: Plataforma de IA empresarial - **IBM Cloud**: Infraestrutura e plataforma cloud - **Red Hat**: Soluções open source corporativas - **IBM Security**: Segurança cibernética - **IBM Z**: Mainframes para missão crítica ## Oracle ### História Fundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite). ### Produtos Principais - **Oracle Database**: Sistema de gerenciamento de banco de dados - **Oracle Cloud Infrastructure (OCI)**: Plataforma de nuvem - **Oracle Fusion**: Suíte de aplicações empresariais - **Java**: Linguagem de programação - **NetSuite**: ERP em nuvem para médias empresas ### Comparativo de Foco Estratégico | Empresa | Segmento Primário | Diferencial Competitivo | |————|——————-|———————————-| | SAP | ERP | Integração profunda industrial | | Salesforce | CRM | Ecossistema de aplicações | | ServiceNow | ITSM | Automação de fluxos de trabalho | | IBM | IA & Cloud Híbrida| Soluções para grandes empresas | | Oracle | Banco de Dados | Performance e escalabilidade |",
+    "text": "**SAP SuccessFactors**: Solução de gestão de capital humano - **SAP Ariba**: Plataforma de procurement digital - **SAP Concur**: Gestão de despesas corporativas - **SAP Fieldglass**: Gestão de força de trabalho contingente ## Salesforce ### História Fundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack). ### Produtos Principais - **Sales Cloud**: CRM para equipes de vendas - **Service Cloud**: Plataforma de atendimento ao cliente - **Marketing Cloud**: Automação de marketing - **Commerce Cloud**: Soluções de e-commerce - **Tableau**: Análise e visualização de dados - **Slack**: Colaboração corporativa ## ServiceNow ### História Criada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano. ### Produtos Principais - **Now Platform**: Plataforma unificada de automação - **ITSM**: Gestão de serviços de TI - **Customer Service Management**: Atendimento ao cliente - **HR Service Delivery**: Automação de RH - **App Engine**: Desenvolvimento low-code ## IBM ### História Fundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica. ### Produtos Principais - **Watson**: Plataforma de IA empresarial - **IBM Cloud**: Infraestrutura e plataforma cloud - **Red Hat**: Soluções open source corporativas - **IBM Security**: Segurança cibernética - **IBM Z**: Mainframes para missão crítica ## Oracle ### História Fundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite). ### Produtos Principais - **Oracle Database**: Sistema de gerenciamento de banco de dados - **Oracle Cloud Infrastructure (OCI)**: Plataforma de nuvem - **Oracle Fusion**: Suíte de aplicações empresariais - **Java**: Linguagem de programação - **NetSuite**: ERP em nuvem para médias empresas ### Comparativo de Foco Estratégico | Empresa | Segmento Primário | Diferencial Competitivo | |————|——————-|———————————-| | SAP | ERP | Integração profunda industrial | | Salesforce | CRM | Ecossistema de aplicações | | ServiceNow | ITSM | Automação de fluxos de trabalho | | IBM | IA & Cloud Híbrida| Soluções para grandes empresas | | Oracle | Banco de Dados | Performance e escalabilidade |",
+    "crumbs": [
+      "Home",
+      "Perfil das Empresas de Tecnologia para Negócios"
+    ]
   }
 ]

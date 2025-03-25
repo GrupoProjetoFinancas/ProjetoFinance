@@ -1,3 +1,110 @@
 ---
-title: "Companies"
+title: "Perfil das Empresas de Tecnologia para Negócios"
+format: html
+toc: true
 ---
+
+## Visão Geral das Principais Empresas de Software Corporativo
+
+Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):
+
+```{r}
+#| echo: false
+#| message: false
+library(knitr)
+library(DT)
+
+empresas <- data.frame(
+  Empresa = c("SAP", "Salesforce", "ServiceNow", "IBM", "Oracle"),
+  Fundação = c(1972, 1999, 2004, 1911, 1977),
+  Sede = c("Walldorf, Alemanha", "San Francisco, EUA", "Santa Clara, EUA", "Armonk, EUA", "Austin, EUA"),
+  Receita_2023 = c("€31B", "$31.4B", "$8.6B", "$61.9B", "$50B"),
+  Funcionários = c("107.000", "79.000", "22.000", "288.000", "164.000"),
+  Foco_Principal = c("ERP", "CRM", "Gestão de Serviços", "IA e Cloud", "Banco de Dados e Cloud")
+)
+
+datatable(empresas, 
+          options = list(pageLength = 5),
+          caption = "Comparativo das Principais Empresas de Software")
+```
+
+## SAP 
+
+### História
+
+Fundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.
+
+### Produtos Principais
+
+-   **SAP S/4HANA**: ERP inteligente em tempo real
+-   **SAP SuccessFactors**: Solução de gestão de capital humano
+-   **SAP Ariba**: Plataforma de procurement digital
+-   **SAP Concur**: Gestão de despesas corporativas
+-   **SAP Fieldglass**: Gestão de força de trabalho contingente
+
+## Salesforce 
+
+### História
+
+Fundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack).
+
+### Produtos Principais
+
+-   **Sales Cloud**: CRM para equipes de vendas
+-   **Service Cloud**: Plataforma de atendimento ao cliente
+-   **Marketing Cloud**: Automação de marketing
+-   **Commerce Cloud**: Soluções de e-commerce
+-   **Tableau**: Análise e visualização de dados
+-   **Slack**: Colaboração corporativa
+
+## ServiceNow 
+
+### História
+
+Criada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano.
+
+### Produtos Principais
+
+-   **Now Platform**: Plataforma unificada de automação
+-   **ITSM**: Gestão de serviços de TI
+-   **Customer Service Management**: Atendimento ao cliente
+-   **HR Service Delivery**: Automação de RH
+-   **App Engine**: Desenvolvimento low-code
+
+## IBM 
+
+### História
+
+Fundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica.
+
+### Produtos Principais
+
+-   **Watson**: Plataforma de IA empresarial
+-   **IBM Cloud**: Infraestrutura e plataforma cloud
+-   **Red Hat**: Soluções open source corporativas
+-   **IBM Security**: Segurança cibernética
+-   **IBM Z**: Mainframes para missão crítica
+
+## Oracle 
+
+### História
+
+Fundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).
+
+### Produtos Principais
+
+-   **Oracle Database**: Sistema de gerenciamento de banco de dados
+-   **Oracle Cloud Infrastructure (OCI)**: Plataforma de nuvem
+-   **Oracle Fusion**: Suíte de aplicações empresariais
+-   **Java**: Linguagem de programação
+-   **NetSuite**: ERP em nuvem para médias empresas
+
+### Comparativo de Foco Estratégico
+
+| Empresa    | Segmento Primário  | Diferencial Competitivo         |
+|------------|--------------------|---------------------------------|
+| SAP        | ERP                | Integração profunda industrial  |
+| Salesforce | CRM                | Ecossistema de aplicações       |
+| ServiceNow | ITSM               | Automação de fluxos de trabalho |
+| IBM        | IA & Cloud Híbrida | Soluções para grandes empresas  |
+| Oracle     | Banco de Dados     | Performance e escalabilidade    |

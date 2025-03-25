@@ -5,7 +5,7 @@ project:
     - data/companies.csv  # Assuming you have company data in CSV format
 
 website:
-  title: "BigdataforFinance"
+  title: "Análise Investimento em Companhias de Software"
   navbar:
     left:
       - href: index.qmd
@@ -14,10 +14,6 @@ website:
         text: Companies
       - href: dashboard.qmd
         text: Dashboard
-  sidebar:
-    - contents:
-      - companies.qmd
-      - dashboard.qmd
 
 format:
   html:

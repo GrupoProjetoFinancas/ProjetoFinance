@@ -1,5 +1,6 @@
 ---
 title: "Big Data for Finance"
+format: html
 ---
 
 ## Por:
@@ -15,7 +16,7 @@ Matheus Kochaki de Liz -
 Aqui estão cinco grandes empresas de software e sistemas que são negociadas na **Bolsa de Nova York (NYSE):**
 
 | Código | Empresa | Descrição |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | **SAP** | SAP SE | Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.). |
 | **ORCL** | Oracle Corporation | Forte em bancos de dados, ERP e soluções na nuvem. |
 | **CRM** | Salesforce Inc. | Líder em CRM (Customer Relationship Management) e soluções SaaS. |
@@ -29,6 +30,7 @@ Essas empresas são negociadas na NYSE e podem ser adquiridas através de corret
 ------------------------------------------------------------------------
 
 ```{r}
+#| echo: false
 # Carregar pacotes necessários
 library(quantmod)
 
@@ -43,6 +45,7 @@ head(NOW)
 ```
 
 ```{r}
+#| echo: false
 library(ggplot2)
 library(tidyr)
 
