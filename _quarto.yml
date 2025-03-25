@@ -10,15 +10,12 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: about.qmd
-        text: About
       - href: companies.qmd
         text: Companies
       - href: dashboard.qmd
         text: Dashboard
   sidebar:
-    - contents: 
-      - about.qmd
+    - contents:
       - companies.qmd
       - dashboard.qmd
 
