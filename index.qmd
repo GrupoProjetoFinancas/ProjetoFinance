@@ -76,6 +76,7 @@ ggplot(stock_data_long, aes(x = Date, y = Close_Price, color = Company)) +
 ## Nova Solução
 
 ```{r}
+#| echo: false
 # Carregar pacotes necessários
 library(quantmod)
 library(tidyverse)

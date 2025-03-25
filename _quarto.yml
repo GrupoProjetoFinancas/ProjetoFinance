@@ -1,0 +1,29 @@
+project:
+  type: website
+  output-dir: "."
+  
+  
+website:
+  title: "Análise Investimento em Companhias de Software"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: companies.qmd
+        text: Companies
+      - href: dashboard.qmd
+        text: Dashboard
+      
+      
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    page-layout: full
+  dashboard:
+    orientation: rows
+    scroll: true
+    theme: cosmo
+
+editor: visual
