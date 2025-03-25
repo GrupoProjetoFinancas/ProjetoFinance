@@ -15,7 +15,7 @@ Matheus Kochaki de Liz -
 Aqui estão cinco grandes empresas de software e sistemas que são negociadas na **Bolsa de Nova York (NYSE):**
 
 | Código | Empresa | Descrição |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | **SAP** | SAP SE | Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.). |
 | **ORCL** | Oracle Corporation | Forte em bancos de dados, ERP e soluções na nuvem. |
 | **CRM** | Salesforce Inc. | Líder em CRM (Customer Relationship Management) e soluções SaaS. |
