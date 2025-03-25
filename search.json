@@ -46,77 +46,49 @@
     "href": "companies.html",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "",
-    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):"
   },
   {
     "objectID": "companies.html#visão-geral-das-principais-empresas-de-software-corporativo",
     "href": "companies.html#visão-geral-das-principais-empresas-de-software-corporativo",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "",
-    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "Este relatório apresenta um resumo comparativo das cinco maiores empresas de software empresarial escolhidas (ERP, CRM e plataformas em nuvem):"
   },
   {
     "objectID": "companies.html#sap",
     "href": "companies.html#sap",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "SAP",
-    "text": "SAP\n\nHistória\nFundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.\n\n\nProdutos Principais\n\nSAP S/4HANA: ERP inteligente em tempo real\nSAP SuccessFactors: Solução de gestão de capital humano\nSAP Ariba: Plataforma de procurement digital\nSAP Concur: Gestão de despesas corporativas\nSAP Fieldglass: Gestão de força de trabalho contingente",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "SAP\n\nHistória\nFundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP (Systems, Applications & Products in Data Processing) revolucionou o software empresarial com o lançamento do R/2 (mainframe) e depois o R/3 (client-server). Tornou-se líder global em soluções ERP.\n\n\nProdutos Principais\n\nSAP S/4HANA: ERP inteligente em tempo real\nSAP SuccessFactors: Solução de gestão de capital humano\nSAP Ariba: Plataforma de procurement digital\nSAP Concur: Gestão de despesas corporativas\nSAP Fieldglass: Gestão de força de trabalho contingente"
   },
   {
     "objectID": "companies.html#salesforce",
     "href": "companies.html#salesforce",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "Salesforce",
-    "text": "Salesforce\n\nHistória\nFundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack).\n\n\nProdutos Principais\n\nSales Cloud: CRM para equipes de vendas\nService Cloud: Plataforma de atendimento ao cliente\nMarketing Cloud: Automação de marketing\nCommerce Cloud: Soluções de e-commerce\nTableau: Análise e visualização de dados\nSlack: Colaboração corporativa",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "Salesforce\n\nHistória\nFundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Software as a Service). Revolucionou o CRM ao mover soluções empresariais para a nuvem. Cresceu através de aquisições estratégicas (MuleSoft, Tableau, Slack).\n\n\nProdutos Principais\n\nSales Cloud: CRM para equipes de vendas\nService Cloud: Plataforma de atendimento ao cliente\nMarketing Cloud: Automação de marketing\nCommerce Cloud: Soluções de e-commerce\nTableau: Análise e visualização de dados\nSlack: Colaboração corporativa"
   },
   {
     "objectID": "companies.html#servicenow",
     "href": "companies.html#servicenow",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "ServiceNow",
-    "text": "ServiceNow\n\nHistória\nCriada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano.\n\n\nProdutos Principais\n\nNow Platform: Plataforma unificada de automação\nITSM: Gestão de serviços de TI\nCustomer Service Management: Atendimento ao cliente\nHR Service Delivery: Automação de RH\nApp Engine: Desenvolvimento low-code",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "ServiceNow\n\nHistória\nCriada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM (IT Service Management) e expandiu para automação de fluxos de trabalho corporativos. Destaque por crescimento consistente acima de 30% ao ano.\n\n\nProdutos Principais\n\nNow Platform: Plataforma unificada de automação\nITSM: Gestão de serviços de TI\nCustomer Service Management: Atendimento ao cliente\nHR Service Delivery: Automação de RH\nApp Engine: Desenvolvimento low-code"
   },
   {
     "objectID": "companies.html#ibm",
     "href": "companies.html#ibm",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "IBM",
-    "text": "IBM\n\nHistória\nFundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica.\n\n\nProdutos Principais\n\nWatson: Plataforma de IA empresarial\nIBM Cloud: Infraestrutura e plataforma cloud\nRed Hat: Soluções open source corporativas\nIBM Security: Segurança cibernética\nIBM Z: Mainframes para missão crítica",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "IBM\n\nHistória\nFundada em 1911 como Computing-Tabulating-Recording Company, tornou-se International Business Machines em 1924. Pioneira em mainframes, liderou a revolução da computação empresarial. Recente foco em IA e computação quântica.\n\n\nProdutos Principais\n\nWatson: Plataforma de IA empresarial\nIBM Cloud: Infraestrutura e plataforma cloud\nRed Hat: Soluções open source corporativas\nIBM Security: Segurança cibernética\nIBM Z: Mainframes para missão crítica"
   },
   {
     "objectID": "companies.html#oracle",
     "href": "companies.html#oracle",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "Oracle",
-    "text": "Oracle\n\nHistória\nFundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).\n\n\nProdutos Principais\n\nOracle Database: Sistema de gerenciamento de banco de dados\nOracle Cloud Infrastructure (OCI): Plataforma de nuvem\nOracle Fusion: Suíte de aplicações empresariais\nJava: Linguagem de programação\nNetSuite: ERP em nuvem para médias empresas\n\n\n\nComparativo de Foco Estratégico\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade",
-    "crumbs": [
-      "Home",
-      "Perfil das Empresas de Tecnologia para Negócios"
-    ]
+    "text": "Oracle\n\nHistória\nFundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).\n\n\nProdutos Principais\n\nOracle Database: Sistema de gerenciamento de banco de dados\nOracle Cloud Infrastructure (OCI): Plataforma de nuvem\nOracle Fusion: Suíte de aplicações empresariais\nJava: Linguagem de programação\nNetSuite: ERP em nuvem para médias empresas\n\n\n\nComparativo de Foco Estratégico\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade"
   },
   {
     "objectID": "companies.html#análise-comparativa",
