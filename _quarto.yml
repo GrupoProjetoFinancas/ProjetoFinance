@@ -1,19 +1,36 @@
 project:
   type: website
   output-dir: "."
+  resources:
+    - data/companies.csv  # Assuming you have company data in CSV format
+
 website:
   title: "BigdataforFinance"
   navbar:
     left:
       - href: index.qmd
         text: Home
+      - href: about.qmd
+        text: About
+      - href: companies.qmd
+        text: Companies
+      - href: dashboard.qmd
+        text: Dashboard
+  sidebar:
+    - contents: 
       - about.qmd
+      - companies.qmd
+      - dashboard.qmd
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    page-layout: full
+  dashboard:
+    orientation: rows
+    scroll: true
+    theme: cosmo
 
 editor: visual
-
