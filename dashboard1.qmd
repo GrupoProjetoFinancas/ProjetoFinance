@@ -78,7 +78,7 @@ for (ticker in tickers) {
 }
 ```
 
-## Retornos Diários  {.tabset}
+## Retornos Diários {.tabset}
 
 ### SAP
 
@@ -115,7 +115,7 @@ plots_log$IBM
 plots_log$NOW
 ```
 
-## Previsão de Volatilidade  {.tabset}
+## Previsão de Volatilidade {.tabset}
 
 ### SAP
 
