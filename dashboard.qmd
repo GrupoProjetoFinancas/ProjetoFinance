@@ -2,3 +2,51 @@
 title: "dashboard"
 format: dashboard
 ---
+
+## ROW {.tabset}
+
+### Plots
+
+```{r}
+#| echo: false
+install.packages("tidyquant")
+library(tidyquant)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Definir os tickers
+tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")
+
+# Baixar os dados históricos
+data <- tq_get(tickers, from = Sys.Date() - years(5), to = Sys.Date())
+
+# Garantir que a coluna "date" esteja no formato correto
+data <- data %>% mutate(date = as.Date(date))
+
+# Selecionar apenas as colunas de interesse
+portfolio_prices <- data %>% select(date, symbol, adjusted) %>% 
+  spread(key = symbol, value = adjusted)
+
+# Remover valores ausentes
+portfolio_prices <- na.omit(portfolio_prices)
+
+# Calcular log-retornos
+log_returns <- portfolio_prices %>% mutate(across(-date, ~ log(.) - log(lag(.))))
+
+# Remover a primeira linha com valores NA
+log_returns <- log_returns %>% drop_na()
+
+# Transformar para formato longo
+log_returns_long <- log_returns %>% pivot_longer(-date, names_to = "Ativo", values_to = "Log_Retorno")
+
+# Criar gráficos individuais para cada ativo
+for (ticker in tickers) {
+  p <- ggplot(filter(log_returns_long, Ativo == ticker), aes(x = date, y = Log_Retorno)) +
+    geom_line(color = "blue") +
+    ggtitle(paste("Log-Retorno de", ticker)) +
+    theme_minimal()
+  print(p)
+}
+
+```

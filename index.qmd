@@ -123,24 +123,8 @@ volatility_sd <- sapply(log_returns, sd)
 cat("\nVolatilidade (desvio padrão):\n")
 print(volatility_sd)
 
-# b) Usando modelos de volatilidade condicional (GARCH)
-# Função para ajustar o modelo GARCH(1,1) e extrair a volatilidade condicional
-fit_garch <- function(returns) {
-  spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
-                     mean.model = list(armaOrder = c(0, 0)))
-  fit <- ugarchfit(spec = spec, data = returns)
-  return(sigma(fit))  # Retorna a volatilidade condicional
-}
-
-# Aplicar o modelo GARCH a cada série de retornos
-conditional_volatility <- sapply(log_returns, fit_garch)
 
 
-# 4) Visualizar a volatilidade condicional
-# Plotar a volatilidade condicional para a primeira ação (SAP)
-plot(conditional_volatility[[1]], type = "l", col = "blue",
-     main = "Volatilidade Condicional (GARCH) - SAP",
-     xlab = "Tempo", ylab = "Volatilidade Condicional")
 ```
 
 ------------------------------------------------------------------------
@@ -162,8 +146,7 @@ Após calcular os log-retornos, o código analisa a distribuição dos retornos.
 A volatilidade é uma medida da dispersão dos retornos em torno de sua média. O código calcula a volatilidade usando dois métodos:
 
 -   **Desvio Padrão:** O desvio padrão dos log-retornos é calculado usando a função `sd()`. Este é um método simples para estimar a volatilidade.
--   **Modelo GARCH (1,1):** O modelo GARCH (1,1) é um modelo estatístico comumente usado para modelar a volatilidade temporal. Ele assume que a volatilidade atual depende da volatilidade passada e de um erro de termo residual. O código ajusta um modelo GARCH(1,1) aos log-retornos e extrai a média da volatilidade condicional, que é uma estimativa da volatilidade da série de preços.
 
 **Conclusões:**
 
-Os resultados do cálculo dos log-retornos e da volatilidade podem ser usados para avaliar o risco e o retorno de cada ativo. Por exemplo, a volatilidade pode ser usada para calcular o valor em risco (VaR) de um portfólio. O modelo GARCH é uma ferramenta poderosa para modelar a volatilidade temporal e pode ser usado para prever a volatilidade futura.
+Os resultados do cálculo dos log-retornos e da volatilidade podem ser usados para avaliar o risco e o retorno de cada ativo. Por exemplo, a volatilidade pode ser usada para calcular o valor em risco (VaR) de um portfólio.
