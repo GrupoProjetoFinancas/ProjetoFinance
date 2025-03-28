@@ -9,11 +9,12 @@ format: dashboard
 
 ```{r}
 #| echo: false
-install.packages("tidyquant")
+
 library(tidyquant)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(lubridate)
 
 # Definir os tickers
 tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")
@@ -22,7 +23,8 @@ tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")
 data <- tq_get(tickers, from = Sys.Date() - years(5), to = Sys.Date())
 
 # Garantir que a coluna "date" esteja no formato correto
-data <- data %>% mutate(date = as.Date(date))
+data <- data %>% 
+  mutate(date = ymd(date))  # Use dmy() for "day-month-year" formats
 
 # Selecionar apenas as colunas de interesse
 portfolio_prices <- data %>% select(date, symbol, adjusted) %>% 
@@ -40,13 +42,99 @@ log_returns <- log_returns %>% drop_na()
 # Transformar para formato longo
 log_returns_long <- log_returns %>% pivot_longer(-date, names_to = "Ativo", values_to = "Log_Retorno")
 
-# Criar gráficos individuais para cada ativo
+# Criar lista de gráficos
+plots <- list()
+
 for (ticker in tickers) {
   p <- ggplot(filter(log_returns_long, Ativo == ticker), aes(x = date, y = Log_Retorno)) +
     geom_line(color = "blue") +
     ggtitle(paste("Log-Retorno de", ticker)) +
     theme_minimal()
-  print(p)
+  
+  plots[[ticker]] <- p  # Armazena o gráfico na lista
 }
+# Criar gráficos individuais para cada ativo
+plots <- list()
+for (ticker in tickers) {
+  p <- ggplot(filter(log_returns_long, Ativo == ticker), aes(x = date, y = Log_Retorno)) +
+    geom_line(color = "blue") +
+    ggtitle(paste("Log-Retorno de", ticker)) +
+    theme_minimal()
+  plots[[ticker]] <- p
+}
+
+# Exibir os gráficos em cards organizados em uma grade
+layout <- "
+  ABC
+  DEF
+"
+
+
+```
+
+### **📊 2. Visualizando as previsões de volatilidade**
+
+```{r}
+#| echo: false
+library(rugarch)
+library(forecast)
+library(ggplot2)
+library(dplyr)
+
+# Criar lista para armazenar previsões
+previsoes <- list()
+
+for (ticker in tickers) {
+  
+  print(paste("Processando:", ticker))  # Mensagem no console
+  
+  # Selecionar os retornos do ativo
+  returns <- log_returns %>% select(date, all_of(ticker)) %>% drop_na()
+  
+  # Converter para série temporal
+  ts_data <- ts(returns[[ticker]], frequency = 252)  # Assumindo 252 dias úteis no ano
+  
+  # Ajustar ARIMA automaticamente
+  arima_model <- auto.arima(ts_data, seasonal = FALSE)
+  
+  # Especificação do modelo GARCH(1,1)
+  spec <- ugarchspec(
+    variance.model = list(model = "sGARCH", garchOrder = c(1,1)),
+    mean.model = list(armaOrder = c(0,0)), 
+    distribution.model = "norm"
+  )
+
+  # Ajustar o modelo GARCH nos resíduos do ARIMA
+  garch_fit <- ugarchfit(spec, ts_data)
+
+  # Fazer previsões para os próximos 100 dias
+  garch_forecast <- ugarchforecast(garch_fit, n.ahead = 100)
+  
+  # Extraindo a previsão da volatilidade
+  volatility_forecast <- as.numeric(sigma(garch_forecast))
+
+  # Criar dataframe de previsão
+  forecast_dates <- seq(max(returns$date), by="days", length.out=100)
+  
+  # Assegurar que os dados estão corretamente alinhados
+  if (length(volatility_forecast) == length(forecast_dates)) {
+    forecast_df <- data.frame(Date = forecast_dates, Volatility = volatility_forecast, Ticker = ticker)
+    previsoes[[ticker]] <- forecast_df  # Armazenar previsão corretamente
+  } else {
+    warning(paste("Erro de dimensão para", ticker))
+  }
+}
+
+# Juntar todas as previsões em um único dataframe
+forecast_data <- bind_rows(previsoes) %>% drop_na()
+
+
+ggplot(forecast_data, aes(x = Date, y = Volatility, color = Ticker)) +
+  geom_line(linewidth=1) +
+  ggtitle("Previsão da Volatilidade - GARCH(1,1) para 5 Ações") +
+  xlab("Data") + ylab("Volatilidade Esperada") +
+  theme_minimal()
+
+
 
 ```

@@ -11,8 +11,9 @@ website:
         text: Home
       - href: companies.qmd
         text: Companies
-      - href: dashboard.qmd
+      - href: dashboard1.qmd
         text: Dashboard
+        
       
       
 format:

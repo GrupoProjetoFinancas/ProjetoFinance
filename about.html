@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Big Data for Finance – Análise Investimento em Companhias de Software</title>
+<title>About – Análise Investimento em Companhias de Software</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -39,6 +73,14 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-dashboard/quarto-dashboard.js"></script>
+<script src="site_libs/quarto-dashboard/stickythead.js"></script>
+<script src="site_libs/quarto-dashboard/datatables.min.js" kdttablesentinel="true"></script>
+<script src="site_libs/quarto-dashboard/pdfmake.min.js" kdttablesentinel="true"></script>
+<script src="site_libs/quarto-dashboard/vfs_fonts.js" kdttablesentinel="true"></script>
+<script src="site_libs/quarto-dashboard/web-components.js" type="module"></script>
+<script src="site_libs/quarto-dashboard/components.js"></script>
+<link href="site_libs/quarto-dashboard/datatables.min.css" rel="stylesheet" kdttablesentinel="true">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,10 +110,10 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="quarto-dashboard nav-fixed dashboard-fill fullcontent">
+
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -89,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -97,7 +139,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Companies</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./dashboard1.html"> 
+    <a class="nav-link" href="./dashboard.html"> 
 <span class="menu-text">Dashboard</span></a>
   </li>  
 </ul>
@@ -106,175 +148,54 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
-</header>
+<header id="quarto-dashboard-header">
+<nav class="navbar navbar-expand-md slim" data-bs-theme="dark">
+  <div class="navbar-container container-fluid">
+    <button class="navbar-toggler hidden" type="button" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-controls="dashboard-collapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>    
+
+
+    <div class="navbar-brand-container">       
+
+      <div class="navbar-title">
+        <div class="navbar-title-text"><a href="#">About</a></div>
+        
+        
+      </div>
+    </div>
+</div>
+</nav>
+</header></header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-layout-custom page-navbar quarto-dashboard-content bslib-gap-spacing html-fill-container bslib-page-fill">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#por" id="toc-por" class="nav-link active" data-scroll-target="#por">Por:</a></li>
-  <li><a href="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse" id="toc-empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="nav-link" data-scroll-target="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse">Empresas de Sistemas na Bolsa de Nova York (NYSE)</a>
-  <ul class="collapse">
-  <li><a href="#como-investir" id="toc-como-investir" class="nav-link" data-scroll-target="#como-investir">📌 Como Investir?</a></li>
-  <li><a href="#nova-solução" id="toc-nova-solução" class="nav-link" data-scroll-target="#nova-solução">Nova Solução</a></li>
-  </ul></li>
-  </ul>
-</nav>
-    </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Big Data for Finance</h1>
+<p>About this site</p>
+<div class="bslib-grid-item html-fill-item bslib-grid" data-layout="fill" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card cell bslib-card html-fill-container" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-body html-fill-item html-fill-container">
+<div class="sourceCode cell-code html-fill-item html-fill-container" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout html-fill-item html-fill-container">
+<pre><code>[1] 2</code></pre>
 </div>
-
-
-
-<div class="quarto-title-meta column-page-left">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
 
 
-<section id="por" class="level2">
-<h2 class="anchored" data-anchor-id="por">Por:</h2>
-<p>Arthur Costa Schaitza - <a href="https://faexai.github.io/portfolio2/" class="uri">https://faexai.github.io/portfolio2/</a></p>
-<p>Pamela Roland - <a href="https://pamroland.github.io/meuportfolio/" class="uri">https://pamroland.github.io/meuportfolio/</a></p>
-<p>Matheus Kochaki de Liz -</p>
-</section>
-<section id="empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="level1">
-<h1>Empresas de Sistemas na Bolsa de Nova York (NYSE)</h1>
-<p>Aqui estão cinco grandes empresas de software e sistemas que são negociadas na <strong>Bolsa de Nova York (NYSE):</strong></p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Código</th>
-<th>Empresa</th>
-<th>Descrição</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>SAP</strong></td>
-<td>SAP SE</td>
-<td>Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.).</td>
-</tr>
-<tr class="even">
-<td><strong>ORCL</strong></td>
-<td>Oracle Corporation</td>
-<td>Forte em bancos de dados, ERP e soluções na nuvem.</td>
-</tr>
-<tr class="odd">
-<td><strong>CRM</strong></td>
-<td>Salesforce Inc.</td>
-<td>Líder em CRM (Customer Relationship Management) e soluções SaaS.</td>
-</tr>
-<tr class="even">
-<td><strong>NOW</strong></td>
-<td>ServiceNow, Inc.</td>
-<td>Focada em automação de fluxos de trabalho e TI empresarial.</td>
-</tr>
-<tr class="odd">
-<td><strong>IBM</strong></td>
-<td>IBM Corporation</td>
-<td>Forte em infraestrutura de TI, nuvem híbrida e IA (Watson).</td>
-</tr>
-</tbody>
-</table>
-<section id="como-investir" class="level2">
-<h2 class="anchored" data-anchor-id="como-investir">📌 Como Investir?</h2>
-<p>Essas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.</p>
-<hr>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAP"  "ORCL" "CRM"  "NOW"  "IBM" </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           NOW.Open NOW.High NOW.Low NOW.Close NOW.Volume NOW.Adjusted
-2023-01-03   395.08   398.65  380.65    385.50    1088000       385.50
-2023-01-04   390.95   397.06  384.74    393.85    1404900       393.85
-2023-01-05   388.45   389.70  365.25    366.32    1790000       366.32
-2023-01-06   371.59   371.59  353.62    366.53    2676700       366.53
-2023-01-09   373.88   392.99  373.19    378.56    2087800       378.56
-2023-01-10   374.37   383.77  374.37    380.84    1064600       380.84</code></pre>
+<div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden">
+
 </div>
 </div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="nova-solução" class="level2">
-<h2 class="anchored" data-anchor-id="nova-solução">Nova Solução</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAP"  "ORCL" "CRM"  "NOW"  "IBM" </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Número de retornos positivos:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code> SAP ORCL  CRM  NOW  IBM 
- 273  277  269  297  280 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Número de retornos negativos:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code> SAP ORCL  CRM  NOW  IBM 
- 226  221  231  203  219 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Volatilidade (desvio padrão):</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       SAP       ORCL        CRM        NOW        IBM 
-0.01474467 0.01970165 0.02103840 0.02067332 0.01271442 </code></pre>
-</div>
-</div>
-<hr>
-<p><strong>Explicação em Markdown:</strong></p>
-<p>Este código R analisa a série de preços de cinco grandes empresas de software e sistemas (SAP, ORCL, CRM, NOW e IBM) negociadas na NYSE, calculando log-retornos, analisando a distribuição dos retornos e calculando a volatilidade usando dois métodos: o desvio padrão e um modelo GARCH.</p>
-<p><strong>1) Cálculo dos Log-Retornos:</strong></p>
-<p>O código começa baixando os dados históricos de preços para as cinco empresas usando a função <code>getSymbols</code> do pacote <code>quantmod</code>. Em seguida, os dados são combinados em um único dataframe chamado <code>stock_data</code>. Os log-retornos são calculados usando a fórmula <code>log(p_t) - log(p_t-1)</code>, onde <code>p_t</code> é o preço no tempo <code>t</code>. A coluna <code>LogReturn</code> no dataframe <code>stock_data</code> contém os log-retornos calculados.</p>
-<p><strong>2) Análise da Distribuição dos Retornos:</strong></p>
-<p>Após calcular os log-retornos, o código analisa a distribuição dos retornos. Ele calcula o número de retornos positivos e negativos. Isso fornece uma ideia da direção predominante dos retornos ao longo do período analisado. Em geral, espera-se que haja mais retornos positivos do que negativos em um mercado financeiro.</p>
-<p><strong>3) Cálculo da Volatilidade:</strong></p>
-<p>A volatilidade é uma medida da dispersão dos retornos em torno de sua média. O código calcula a volatilidade usando dois métodos:</p>
-<ul>
-<li><strong>Desvio Padrão:</strong> O desvio padrão dos log-retornos é calculado usando a função <code>sd()</code>. Este é um método simples para estimar a volatilidade.</li>
-</ul>
-<p><strong>Conclusões:</strong></p>
-<p>Os resultados do cálculo dos log-retornos e da volatilidade podem ser usados para avaliar o risco e o retorno de cada ativo. Por exemplo, a volatilidade pode ser usada para calcular o valor em risco (VaR) de um portfólio.</p>
 
 
-</section>
-</section>
-
-</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -697,6 +618,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 </div> <!-- /content -->
 
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (_event) {
+  if (window.bslib.Card) {
+    window.bslib.Card.initializeAllCards();
+  }
+}); 
+</script>
+  
 
 
 
