@@ -33,11 +33,11 @@ Essas empresas são negociadas na NYSE e podem ser adquiridas através de corret
 #| include: false
 # Carregar pacotes necessários
 library(quantmod)
-
+library(lubridate)
 
 tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")  # SAP, Oracle, Salesforce, ServiceNow, IBM
 
-# Baixar dados históricos do Yahoo Finance até 31/12/2024
+# Baixar dados históricos do Yahoo Finance 
 getSymbols(tickers, src = "yahoo", from = Sys.Date() - years(5), to = Sys.Date())
 
 # Exibir as primeiras linhas dos dados de uma das empresas (ex: IBM)

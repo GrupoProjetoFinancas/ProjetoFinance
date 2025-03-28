@@ -120,7 +120,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse" id="toc-empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="nav-link" data-scroll-target="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse">Empresas de Sistemas na Bolsa de Nova York (NYSE)</a>
   <ul class="collapse">
   <li><a href="#como-investir" id="toc-como-investir" class="nav-link" data-scroll-target="#como-investir">📌 Como Investir?</a></li>
-  <li><a href="#nova-solução" id="toc-nova-solução" class="nav-link" data-scroll-target="#nova-solução">Nova Solução</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -202,73 +201,14 @@ ul.task-list li input[type="checkbox"] {
 <p>Essas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.</p>
 <hr>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAP"  "ORCL" "CRM"  "NOW"  "IBM" </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           NOW.Open NOW.High NOW.Low NOW.Close NOW.Volume NOW.Adjusted
-2023-01-03   395.08   398.65  380.65    385.50    1088000       385.50
-2023-01-04   390.95   397.06  384.74    393.85    1404900       393.85
-2023-01-05   388.45   389.70  365.25    366.32    1790000       366.32
-2023-01-06   371.59   371.59  353.62    366.53    2676700       366.53
-2023-01-09   373.88   392.99  373.19    378.56    2087800       378.56
-2023-01-10   374.37   383.77  374.37    380.84    1064600       380.84</code></pre>
-</div>
-</div>
-<div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="nova-solução" class="level2">
-<h2 class="anchored" data-anchor-id="nova-solução">Nova Solução</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "SAP"  "ORCL" "CRM"  "NOW"  "IBM" </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Número de retornos positivos:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code> SAP ORCL  CRM  NOW  IBM 
- 273  277  269  297  280 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Número de retornos negativos:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code> SAP ORCL  CRM  NOW  IBM 
- 226  221  231  203  219 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Volatilidade (desvio padrão):</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       SAP       ORCL        CRM        NOW        IBM 
-0.01474467 0.01970165 0.02103840 0.02067332 0.01271442 </code></pre>
-</div>
-</div>
-<hr>
-<p><strong>Explicação em Markdown:</strong></p>
-<p>Este código R analisa a série de preços de cinco grandes empresas de software e sistemas (SAP, ORCL, CRM, NOW e IBM) negociadas na NYSE, calculando log-retornos, analisando a distribuição dos retornos e calculando a volatilidade usando dois métodos: o desvio padrão e um modelo GARCH.</p>
-<p><strong>1) Cálculo dos Log-Retornos:</strong></p>
-<p>O código começa baixando os dados históricos de preços para as cinco empresas usando a função <code>getSymbols</code> do pacote <code>quantmod</code>. Em seguida, os dados são combinados em um único dataframe chamado <code>stock_data</code>. Os log-retornos são calculados usando a fórmula <code>log(p_t) - log(p_t-1)</code>, onde <code>p_t</code> é o preço no tempo <code>t</code>. A coluna <code>LogReturn</code> no dataframe <code>stock_data</code> contém os log-retornos calculados.</p>
-<p><strong>2) Análise da Distribuição dos Retornos:</strong></p>
-<p>Após calcular os log-retornos, o código analisa a distribuição dos retornos. Ele calcula o número de retornos positivos e negativos. Isso fornece uma ideia da direção predominante dos retornos ao longo do período analisado. Em geral, espera-se que haja mais retornos positivos do que negativos em um mercado financeiro.</p>
-<p><strong>3) Cálculo da Volatilidade:</strong></p>
-<p>A volatilidade é uma medida da dispersão dos retornos em torno de sua média. O código calcula a volatilidade usando dois métodos:</p>
-<ul>
-<li><strong>Desvio Padrão:</strong> O desvio padrão dos log-retornos é calculado usando a função <code>sd()</code>. Este é um método simples para estimar a volatilidade.</li>
-</ul>
-<p><strong>Conclusões:</strong></p>
-<p>Os resultados do cálculo dos log-retornos e da volatilidade podem ser usados para avaliar o risco e o retorno de cada ativo. Por exemplo, a volatilidade pode ser usada para calcular o valor em risco (VaR) de um portfólio.</p>
 
 
 </section>

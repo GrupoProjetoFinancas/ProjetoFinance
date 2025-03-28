@@ -76,6 +76,145 @@ for (ticker in tickers) {
          x = "", y = "Volatilidade") +
     theme(plot.title = element_text(face = "bold"))
 }
+
+
+```
+
+```{r}
+#| include: false
+library(tidyverse)
+library(rugarch)
+library(patchwork)  # Para combinar gráficos e textos
+
+# Criar lista para armazenar gráficos e resultados
+resultados_completos <- list()
+
+for (ticker in tickers) {
+  # Filtrar dados do ativo
+  dados_ativos <- log_returns_long %>% 
+    filter(Ativo == ticker) %>% 
+    arrange(date)
+  
+  # Ajustar modelo GARCH(1,1)
+  spec <- ugarchspec(
+    variance.model = list(model = "sGARCH", garchOrder = c(1,1)),
+    mean.model = list(armaOrder = c(0,0)),
+    distribution.model = "std"
+  )
+  
+  modelo <- ugarchfit(spec, data = dados_ativos$Log_Retorno, solver = "hybrid")
+  
+  # Extrair resultados do modelo
+  coefs <- coef(modelo)
+  infos <- infocriteria(modelo)
+  likelihood <- likelihood(modelo)
+  
+   # 1. Calcular o p-value ANTES de usar no str_glue
+  signbias_p_value <- tryCatch({
+    sb <- rugarch::signbias(modelo)
+    if (!is.null(sb) && "SignBias" %in% rownames(sb)) {
+      signif(sb["SignBias", "p-value"], 3)
+    } else {
+      "Indisponível"
+    }
+  }, error = function(e) "N/A")
+  
+  # 2. Agora usar a variável já calculada
+  texto_modelo <- str_glue(
+    "**Resultados do Modelo GARCH(1,1) - {ticker}**
+    
+    Coeficientes:
+    - Omega: {round(coefs['omega'], 6)}
+    - Alpha1: {round(coefs['alpha1'], 4)}
+    - Beta1: {round(coefs['beta1'], 4)}
+    
+    Estatísticas:
+    - Log-Likelihood: {round(likelihood, 1)}
+    - AIC: {round(infos['Akaike',], 2)}
+    - BIC: {round(infos['Bayes',], 2)}
+    
+    Testes:
+    - P-value Sign Bias: {signbias_p_value}"
+  )
+  
+  # Criar dataframe para plotagem
+  plot_data <- dados_ativos %>% 
+    mutate(
+      Volatilidade = sigma(modelo),
+      date = as.Date(date)
+    )
+  
+  # Criar gráfico
+  grafico <- ggplot(plot_data, aes(x = date)) +
+    geom_line(aes(y = Log_Retorno, color = "Log Return"), linewidth = 0.5) +
+    geom_line(aes(y = Volatilidade, color = "Volatilidade"), 
+              linetype = "dashed", linewidth = 0.8) +
+    scale_color_manual(values = c("Log Return" = "steelblue", 
+                                "Volatilidade" = "firebrick")) +
+    labs(
+      title = paste("Análise do", ticker),
+      subtitle = "Retornos Logarítmicos vs Volatilidade Estimada",
+      x = "Data",
+      y = "Valor",
+      color = ""
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position = "top",
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(color = "gray40")
+    )
+  
+  # Criar visualização combinada
+  resultados_completos[[ticker]] <- grafico + 
+    wrap_elements(
+      grid::textGrob(
+        texto_modelo,
+        x = 0.05, y = 0.95,
+        just = "left",
+        gp = grid::gpar(col = "gray30", fontsize = 10)
+      )
+    ) +
+    plot_layout(ncol = 1, heights = c(3, 1))
+}
+
+```
+
+## Análise detalhada por ativo  {.tabset}
+
+### SAP
+
+```{r}
+#| echo: false
+resultados_completos$SAP
+```
+
+### ORACLE
+
+```{r}
+#| echo: false
+resultados_completos$ORCL
+```
+
+### SALESFORCE
+
+```{r}
+#| echo: false
+resultados_completos$CRM
+```
+
+### IBM
+
+```{r}
+#| echo: false
+resultados_completos$IBM
+```
+
+### ServiceNOW
+
+```{r}
+#| echo: false
+resultados_completos$NOW
 ```
 
 ## Retornos Diários {.tabset}
@@ -114,6 +253,8 @@ plots_log$IBM
 #| echo: false
 plots_log$NOW
 ```
+
+## 
 
 ## Previsão de Volatilidade {.tabset}
 
