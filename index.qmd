@@ -7,7 +7,7 @@ format: html
 
 Arthur Costa Schaitza - <https://faexai.github.io/portfolio2/>
 
-Pamela Roland -
+Pamela Roland - <https://pamroland.github.io/meuportfolio/>
 
 Matheus Kochaki de Liz -
 
