@@ -14,11 +14,9 @@ format:
 editor: visual
 ---
 
-------------------------------------------------------------------------
-
-## Log de Retornos  {.tabset}
-
 ::: panel-tabset
+## Log de Retornos
+
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(
