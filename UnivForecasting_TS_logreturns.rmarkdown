@@ -17,6 +17,9 @@ format:
 editor: visual
 ---
 
+
+
+
 ------------------------------------------------------------------------
 
 # Intro
@@ -24,6 +27,9 @@ editor: visual
 ## 
 
 ::: panel-tabset
+
+
+
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(
@@ -56,7 +62,13 @@ library(tictoc)
 
 ```
 
+
+
+
 Carregamos os dados:
+
+
+
 
 ```{r}
 
@@ -71,7 +83,13 @@ tickers <- c(
 
 ```
 
+
+
+
 Então baixo os dados via Yahoo!Finance:
+
+
+
 
 ```{r}
 
@@ -102,7 +120,13 @@ colnames(portfolioPrices) <- c(
 
 ```
 
+
+
+
 Visualizando os dados dos nossos últimos retornos dos preços, temos:
+
+
+
 
 ```{r fig.width=9, fig.height=9}
 
@@ -142,11 +166,17 @@ ln_returns |> as.data.frame() |>
 
 ```
 
+
+
+
 ### Modelagem com fpp3 e validação cruzada temporal  {.tabset}
 
 Precisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:
 
 -   Vamos começar com uma série por vez $\Rightarrow$ SAP
+
+
+
 
 ```{r}
 
@@ -167,7 +197,13 @@ treino <- lnretSAP |>
 
 ```
 
+
+
+
 War models
+
+
+
 
 ```{r}
 
@@ -253,7 +289,13 @@ toc()
 
 ```
 
+
+
+
 Selecionamos o melhor modelo (1 fold de validação cruzada somente):
+
+
+
 
 ```{r}
 
@@ -263,7 +305,13 @@ Modelos |>
 
 ```
 
+
+
+
 Gero um cenário com o modelo:
+
+
+
 
 ```{r}
 
@@ -276,7 +324,13 @@ sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
 
 ```
 
+
+
+
 Plotamos os forecasts com esse modelo pra três cenários distintos no futuro:
+
+
+
 
 ```{r fig.width=9, fig.height=4}
 
@@ -412,9 +466,15 @@ lnretCRM |>
   guides(colour = "none")
 
 ```
+
+
+
 :::
 
  
+
+
+
 
 ```{r fig.width=9, fig.height=3.5, fig.align='center'}
 
@@ -671,4 +731,3 @@ lnretMSFT |>
   guides(colour = "none")
 ```
 
-  
