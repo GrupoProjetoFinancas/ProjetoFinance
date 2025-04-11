@@ -22,6 +22,7 @@ Aqui estão cinco grandes empresas de software e sistemas que são negociadas na
 | **CRM** | Salesforce Inc. | Líder em CRM (Customer Relationship Management) e soluções SaaS. |
 | **NOW** | ServiceNow, Inc. | Focada em automação de fluxos de trabalho e TI empresarial. |
 | **IBM** | IBM Corporation | Forte em infraestrutura de TI, nuvem híbrida e IA (Watson). |
+| **MSFT** | Microsoft Corporation | É líder global em software, hardware e serviços de tecnologia |
 
 ## 📌 Como Investir?
 
@@ -35,7 +36,7 @@ Essas empresas são negociadas na NYSE e podem ser adquiridas através de corret
 library(quantmod)
 library(lubridate)
 
-tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")  # SAP, Oracle, Salesforce, ServiceNow, IBM
+tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM","MSFT")  # SAP, Oracle, Salesforce, ServiceNow, IBM
 
 # Baixar dados históricos do Yahoo Finance 
 getSymbols(tickers, src = "yahoo", from = Sys.Date() - years(5), to = Sys.Date())
@@ -56,7 +57,8 @@ stock_data <- data.frame(
   ORCL = Cl(ORCL),
   CRM = Cl(CRM),
   NOW = Cl(NOW),
-  IBM = Cl(IBM)
+  IBM = Cl(IBM),
+  MSFT = Cl(MSFT)
 )
 
 # Transformar os dados para o formato longo (tidy) para usar no ggplot2

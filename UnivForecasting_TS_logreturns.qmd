@@ -1,0 +1,694 @@
+---
+title: "Ciência de Dados para Negócios: Big Data for Finance Project"
+subtitle: "Encontro 6"
+author: "Prof. Rodrigo Hermont Ozon"
+date: "Last Update: `r Sys.Date()`"
+format:
+  html:
+    self-contained: true
+    toc: true
+    code-tools: true
+    code-fold: true
+    df-print: paged
+    css: 
+      - styles.css
+      - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css
+    extensions: [fontawesome]
+editor: visual
+---
+
+------------------------------------------------------------------------
+
+<left> ![](https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png){width="15%"} </left>
+
+------------------------------------------------------------------------
+
+<!-- no yml tem um styles.css que precisou ser editado pra aparecer sempre no conteudo a logo da FAE -->
+
+<a href="https://fae.edu/cursos/182302806/ciencia-de-dados-para-negocios.htm" target="_blank"> <img src="https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png" alt="Logo FAE" class="fixed-logo interactive-logo"/> </a> <!-- abrir e edita ro .css que esta junto da pasta desse qmd em anexo -->
+
+::: callout-note
+## Resumo
+
+<font size = 1>
+
+escrever
+
+</font>
+:::
+
+# Intro
+
+escrever
+
+::: panel-tabset
+## R
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	comment = NA
+)
+knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
+knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
+knitr::opts_chunk$set(message = FALSE) # Remove all messages # of R outputs
+
+```
+
+```{r}
+
+library(tidyverse)
+library(tidymodels)
+library(modeltime)
+library(timetk)
+library(purrr)
+library(tidyquant)
+library(tsibble)
+library(prophet)
+library(feasts)
+library(fable)
+library(fabletools)
+library(lubridate)
+library(tictoc)
+
+```
+
+Carregamos os dados:
+
+```{r}
+
+tickers <- c(
+         "SAP",
+         "CRM",
+         "NOW",
+         "ORCL",
+         "IBM",
+         "MSFT"
+)
+
+```
+
+Então baixo os dados via Yahoo!Finance:
+
+```{r}
+
+portfolioPrices <- NULL
+  for ( Ticker in tickers )
+    portfolioPrices <- cbind(
+      portfolioPrices, 
+      quantmod::getSymbols.yahoo(
+        Ticker,
+        from = "2019-01-01",
+        auto.assign = FALSE
+      )[,4]
+    )
+
+portfolioPrices <- portfolioPrices[apply(portfolioPrices, 1, function(x) all(!is.na(x))),]
+
+colnames(portfolioPrices) <- c(
+  "SAP",
+         "CRM",
+         "NOW",
+         "ORCL",
+         "IBM",
+  "MSFT"
+)
+
+# Visualizar com DT
+#DT::datatable(tail(portfolioPrices), options = list(pageLength = 10, scrollX = TRUE)) 
+
+```
+
+Visualizando os dados dos nossos últimos retornos dos preços, temos:
+
+```{r fig.width=9, fig.height=9}
+
+log_returns <- log(portfolioPrices) - log(lag(portfolioPrices))
+log_returns <- na.omit(log_returns)
+log_returns <- log_returns |> 
+  timetk::tk_tbl(preserve_index = TRUE, rename_index = "date")
+
+tail(log_returns)
+
+```
+
+```{r fig.width=9, fig.height=9}
+
+ln_returns <- log_returns
+
+ln_returns |> as.data.frame() |>
+  dplyr::mutate(
+    time = seq_along( SAP )
+  ) |> select(-date) |>
+  tidyr::pivot_longer(
+    !time,
+    names_to = "Variables",
+    values_to = "Value"  
+      ) |>
+  dplyr::group_by(Variables) |>
+  timetk::plot_time_series(
+    time,
+    Value,
+    .interactive = F, # Change for TRUE for better visualization
+    .facet_ncol = 2,
+    .smooth = FALSE
+  ) +
+  ggplot2::theme(
+    strip.background = ggplot2::element_rect(fill = "white", colour = "white")
+  )
+
+```
+
+### Modelagem com fpp3 e validação cruzada temporal
+
+Precisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:
+
+-   Vamos começar com uma série por vez $\Rightarrow$ SAP
+
+```{r}
+
+# Primeiro converto pra tsibble
+
+lnretSAP <- log_returns |> 
+  select(date, SAP) |> 
+  as_tsibble(index = date)
+
+glimpse(lnretSAP)
+
+```
+
+```{r}
+
+treino <- lnretSAP |>
+  filter_index(~"2025-01-01")
+
+```
+
+War models
+
+```{r}
+
+tic()
+
+Modelos <- treino |>
+  model(
+    AjusteExp = ETS(SAP ~ error("A") + trend("N") + season("N")), # Ajuste Exponencial com auto
+    
+    AjExp_aditivo = ETS(SAP ~ error("A") + trend("A") + season("A")), # Ajuste Exponencial Aditivo
+    
+    AjExp_multiplicativo = ETS(SAP ~ error("M") + trend("A") + season("M")), # Ajuste Exponencial Multiplicativo
+    
+    Croston = CROSTON(SAP), # Modelo Croston
+    
+    HoltWinters = ETS(SAP ~ error("M") + trend("Ad") + season("M")), # Holt Winters
+    
+    Holt = ETS(SAP ~ error("A") + trend("A") + season("N")), # Holt
+    
+    HoltAmort = ETS(SAP ~ error("A") + trend("Ad", phi = 0.9) + season("N")), # Holt Amortecida
+    
+    Regr_Comp = TSLM(SAP ~ trend() + season()), # Regressao com tendencia e sazonalidade auto
+    
+    Regr_Harmonica = TSLM(SAP ~ trend() + fourier(K = 2)), # Regressao harmonica
+    
+    Regr_Quebras = TSLM(SAP ~ trend(knots = c(2018, 2019, 2020))), # Regressao com quebras estruturais
+    
+    Snaive = SNAIVE(SAP), # SNAIVE
+    
+    Naive = NAIVE(SAP), #NAIVE
+    
+    Media_Movel = ARIMA(SAP ~ pdq(0,0,1)), # Media Movel Simples
+    
+    autoARIMA = ARIMA(SAP, stepwise = FALSE, approx = FALSE), # Auto ARIMA
+    
+    autoARIMA_saz = ARIMA(SAP, stepwise = FALSE, approx = FALSE, seasonal = TRUE), # AutoARIMA Sazonal
+    
+    #    Regr_erros_ARIMA = auto.arima(SAP, xreg = fourier(K = 3), seasonal = FALSE), # Regressao com erros ARIMA
+    
+    ARIMA_saz_012011 = ARIMA(SAP ~ pdq(0,1,2) + PDQ(0,1,1)), # ARIMA Sazonal ordem 012011
+    
+    ARIMA_saz_210011 = ARIMA(SAP ~ pdq(2,1,0) + PDQ(0,1,1)), # ARIMA Sazonal ordem 210011
+    
+    ARIMA_saz_0301012 = ARIMA(SAP ~ 0 + pdq(3,0,1) + PDQ(0,1,2)), # ARIMA sazonal
+    
+    ARIMA_quad = ARIMA(SAP ~ I(trend()^2)), # ARIMA com tendencia temporal quadratica
+    
+    ARIMA_determ = ARIMA(SAP ~ 1 + trend() + pdq(d = 0)), # ARIMA com tendencia deterministica
+    
+    ARIMA_estocastico = ARIMA(SAP ~ pdq(d = 1)), # ARIMA com tendência estocastica
+    
+    Regr_Harm_dinamica = ARIMA(SAP ~ fourier(K=2) + PDQ(0,0,0)), # Regressao Harmonica Dinamica
+    
+    Regr_Harm_Din_MultSaz = ARIMA(SAP ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    
+    Regr_Harm_Din_Saz = ARIMA(SAP ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) +
+                                fourier(period = "year", K = 2) ), # Rgr Harm Mult Saz Complexa
+    
+#    Auto_Prophet = prophet(SAP), # Auto prophet
+    
+#    Prophet_mult = prophet(SAP ~ season(period = "month", order = 2, type = "multiplicative")),
+    
+#    Prophet_aditivo = prophet(SAP ~ season(period = "month", order = 2, type = "additive")),
+    
+#    Prophet_geom = prophet(SAP ~ growth("geometric") + season(period = "month", order = 2, type = "multiplicative")),
+    
+#    Prophet_memo = prophet(SAP ~ growth("geometric") + season(period = "month", order = 5) +
+#                             season(period = "year", order = 2, type = "multiplicative")),
+    
+    Modelo_VAR = VAR(SAP, ic = "bic"), # Vetor Autoregressivo 
+    
+    Random_Walk = RW(SAP ~ drift()), # Random Walk com drift
+    
+    Rede_Neural_AR = NNETAR(SAP, bootstrap =  TRUE)#, # Rede Neural com auto AR e bootstraping nos erros
+    
+    #    x11 = X_13ARIMA_SEATS(SAP ~ x11()) # X11 ARIMA Seats
+    
+  ) |>
+  
+  forecast(h = "24 months") # Horizonte de projecao para os proximos 30 dias apos corte no treino
+
+toc()  
+
+```
+
+Selecionamos o melhor modelo (1 fold de validação cruzada somente):
+
+```{r}
+
+Modelos |>
+  accuracy(lnretSAP) |>
+  arrange(RMSE) # Seleção da acuracia pelo menor RMSE para o conjunto de modelos
+
+```
+
+Gero um cenário com o modelo:
+
+```{r}
+
+fit <- lnretSAP |>
+  model(
+    Regr_Quebras = TSLM(SAP ~ trend(knots = c(2018, 2019, 2020))), # Regressao com quebras estruturais
+  )
+
+sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
+
+```
+
+Plotamos os forecasts com esse modelo pra três cenários distintos no futuro:
+
+```{r fig.width=9, fig.height=4}
+
+lnretSAP |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = SAP)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim) +
+  labs(title="Valores projetados de retornos de preços de contratos futuros da SAP", y="$US" ) +
+  guides(colour = "none")
+
+```
+
+```{r}
+
+# Primeiro converto pra tsibble
+
+lnretCRM <- log_returns |> 
+  select(date, CRM) |> 
+  as_tsibble(index = date)
+
+glimpse(lnretCRM)
+
+```
+
+```{r}
+treino <- lnretCRM |>
+  filter_index(~"2025-01-01")
+
+```
+
+```{r}
+tic()
+
+Modelos <- treino |>
+  model(
+    AjusteExp = ETS(CRM ~ error("A") + trend("N") + season("N")), # Ajuste Exponencial com auto
+    
+    AjExp_aditivo = ETS(CRM ~ error("A") + trend("A") + season("A")), # Ajuste Exponencial Aditivo
+    
+    AjExp_multiplicativo = ETS(CRM ~ error("M") + trend("A") + season("M")), # Ajuste Exponencial Multiplicativo
+    
+    Croston = CROSTON(CRM), # Modelo Croston
+    
+    HoltWinters = ETS(CRM ~ error("M") + trend("Ad") + season("M")), # Holt Winters
+    
+    Holt = ETS(CRM ~ error("A") + trend("A") + season("N")), # Holt
+    
+    HoltAmort = ETS(CRM ~ error("A") + trend("Ad", phi = 0.9) + season("N")), # Holt Amortecida
+    
+    Regr_Comp = TSLM(CRM ~ trend() + season()), # Regressao com tendencia e sazonalidade auto
+    
+    Regr_Harmonica = TSLM(CRM ~ trend() + fourier(K = 2)), # Regressao harmonica
+    
+    Regr_Quebras = TSLM(CRM ~ trend(knots = c(2018, 2019, 2020))), # Regressao com quebras estruturais
+    
+    Snaive = SNAIVE(CRM), # SNAIVE
+    
+    Naive = NAIVE(CRM), #NAIVE
+    
+    Media_Movel = ARIMA(CRM ~ pdq(0,0,1)), # Media Movel Simples
+    
+    autoARIMA = ARIMA(CRM, stepwise = FALSE, approx = FALSE), # Auto ARIMA
+    
+    autoARIMA_saz = ARIMA(CRM, stepwise = FALSE, approx = FALSE, seasonal = TRUE), # AutoARIMA Sazonal
+    
+    #    Regr_erros_ARIMA = auto.arima(SAP, xreg = fourier(K = 3), seasonal = FALSE), # Regressao com erros ARIMA
+    
+    ARIMA_saz_012011 = ARIMA(CRM ~ pdq(0,1,2) + PDQ(0,1,1)), # ARIMA Sazonal ordem 012011
+    
+    ARIMA_saz_210011 = ARIMA(CRM ~ pdq(2,1,0) + PDQ(0,1,1)), # ARIMA Sazonal ordem 210011
+    
+    ARIMA_saz_0301012 = ARIMA(CRM ~ 0 + pdq(3,0,1) + PDQ(0,1,2)), # ARIMA sazonal
+    
+    ARIMA_quad = ARIMA(CRM ~ I(trend()^2)), # ARIMA com tendencia temporal quadratica
+    
+    ARIMA_determ = ARIMA(CRM ~ 1 + trend() + pdq(d = 0)), # ARIMA com tendencia deterministica
+    
+    ARIMA_estocastico = ARIMA(CRM ~ pdq(d = 1)), # ARIMA com tendência estocastica
+    
+    Regr_Harm_dinamica = ARIMA(CRM ~ fourier(K=2) + PDQ(0,0,0)), # Regressao Harmonica Dinamica
+    
+    Regr_Harm_Din_MultSaz = ARIMA(CRM ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    
+    Regr_Harm_Din_Saz = ARIMA(CRM ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) +
+                                fourier(period = "year", K = 2) ), # Rgr Harm Mult Saz Complexa
+    
+#    Auto_Prophet = prophet(SAP), # Auto prophet
+    
+#    Prophet_mult = prophet(SAP ~ season(period = "month", order = 2, type = "multiplicative")),
+    
+#    Prophet_aditivo = prophet(SAP ~ season(period = "month", order = 2, type = "additive")),
+    
+#    Prophet_geom = prophet(SAP ~ growth("geometric") + season(period = "month", order = 2, type = "multiplicative")),
+    
+#    Prophet_memo = prophet(SAP ~ growth("geometric") + season(period = "month", order = 5) +
+#                             season(period = "year", order = 2, type = "multiplicative")),
+    
+    Modelo_VAR = VAR(CRM, ic = "bic"), # Vetor Autoregressivo 
+    
+    Random_Walk = RW(CRM ~ drift()), # Random Walk com drift
+    
+    Rede_Neural_AR = NNETAR(CRM, bootstrap =  TRUE)#, # Rede Neural com auto AR e bootstraping nos erros
+    
+    #    x11 = X_13ARIMA_SEATS(SAP ~ x11()) # X11 ARIMA Seats
+    
+  ) |>
+  
+  forecast(h = "24 months") # Horizonte de projecao para os proximos 30 dias apos corte no treino
+
+toc()  
+```
+
+```{r}
+fit <- lnretCRM |>
+  model(
+    Regr_Quebras = TSLM(CRM ~ trend(knots = c(2018, 2019, 2020))), # Regressao com quebras estruturais
+  )
+
+sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
+```
+
+```{r fig.width=9, fig.height=4}
+
+lnretCRM |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = CRM)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim) +
+  labs(title="Valores projetados de retornos de preços de contratos futuros da SALESFORCE", y="$US" ) +
+  guides(colour = "none")
+
+```
+:::
+
+ 
+
+```{r fig.width=9, fig.height=3.5, fig.align='center'}
+
+# Processamento para NOW
+lnretNOW <- log_returns |> 
+  select(date, NOW) |> 
+  as_tsibble(index = date)
+
+treino <- lnretNOW |> filter_index(~"2025-01-01")
+
+# Modelagem
+tic()
+Modelos <- treino |>
+  model(
+    AjusteExp = ETS(NOW ~ error("A") + trend("N") + season("N")),
+    AjExp_aditivo = ETS(NOW ~ error("A") + trend("A") + season("A")),
+    AjExp_multiplicativo = ETS(NOW ~ error("M") + trend("A") + season("M")),
+    Croston = CROSTON(NOW),
+    HoltWinters = ETS(NOW ~ error("M") + trend("Ad") + season("M")),
+    Holt = ETS(NOW ~ error("A") + trend("A") + season("N")),
+    HoltAmort = ETS(NOW ~ error("A") + trend("Ad", phi = 0.9) + season("N")),
+    Regr_Comp = TSLM(NOW ~ trend() + season()),
+    Regr_Harmonica = TSLM(NOW ~ trend() + fourier(K = 2)),
+    Regr_Quebras = TSLM(NOW ~ trend(knots = c(2018, 2019, 2020))),
+    Snaive = SNAIVE(NOW),
+    Naive = NAIVE(NOW),
+    Media_Movel = ARIMA(NOW ~ pdq(0,0,1)),
+    autoARIMA = ARIMA(NOW, stepwise = FALSE, approx = FALSE),
+    autoARIMA_saz = ARIMA(NOW, stepwise = FALSE, approx = FALSE, seasonal = TRUE),
+    ARIMA_saz_012011 = ARIMA(NOW ~ pdq(0,1,2) + PDQ(0,1,1)),
+    ARIMA_saz_210011 = ARIMA(NOW ~ pdq(2,1,0) + PDQ(0,1,1)),
+    ARIMA_saz_0301012 = ARIMA(NOW ~ 0 + pdq(3,0,1) + PDQ(0,1,2)),
+    ARIMA_quad = ARIMA(NOW ~ I(trend()^2)),
+    ARIMA_determ = ARIMA(NOW ~ 1 + trend() + pdq(d = 0)),
+    ARIMA_estocastico = ARIMA(NOW ~ pdq(d = 1)),
+    Regr_Harm_dinamica = ARIMA(NOW ~ fourier(K=2) + PDQ(0,0,0)),
+    Regr_Harm_Din_MultSaz = ARIMA(NOW ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    Regr_Harm_Din_Saz = ARIMA(NOW ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) + fourier(period = "year", K = 2)),
+    Modelo_VAR = VAR(NOW, ic = "bic"),
+    Random_Walk = RW(NOW ~ drift()),
+    Rede_Neural_AR = NNETAR(NOW, bootstrap = TRUE)
+  ) |>
+  forecast(h = "24 months")
+toc()
+
+# Seleção do melhor modelo
+Modelos |>
+  accuracy(lnretNOW) |>
+  arrange(RMSE)
+
+# Projeções
+fit <- lnretNOW |>
+  model(
+    Regr_Quebras = TSLM(NOW ~ trend(knots = c(2018, 2019, 2020)))
+  )
+
+sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
+
+# Plot
+lnretNOW |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = NOW)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim) +
+  labs(title="Retornos projetados da NOW", y="Log Returns") +
+  guides(colour = "none")
+```
+
+```{r}
+# Processamento para ORCL
+lnretORCL <- log_returns |> 
+  select(date, ORCL) |> 
+  as_tsibble(index = date)
+
+treino <- lnretORCL |> filter_index(~"2025-01-01")
+
+# Modelagem
+tic()
+Modelos_ORCL <- treino |>
+  model(
+    AjusteExp = ETS(ORCL ~ error("A") + trend("N") + season("N")),
+    AjExp_aditivo = ETS(ORCL ~ error("A") + trend("A") + season("A")),
+    AjExp_multiplicativo = ETS(ORCL ~ error("M") + trend("A") + season("M")),
+    Croston = CROSTON(ORCL),
+    HoltWinters = ETS(ORCL ~ error("M") + trend("Ad") + season("M")),
+    Holt = ETS(ORCL ~ error("A") + trend("A") + season("N")),
+    HoltAmort = ETS(ORCL ~ error("A") + trend("Ad", phi = 0.9) + season("N")),
+    Regr_Comp = TSLM(ORCL ~ trend() + season()),
+    Regr_Harmonica = TSLM(ORCL ~ trend() + fourier(K = 2)),
+    Regr_Quebras = TSLM(ORCL ~ trend(knots = c(2018, 2019, 2020))),
+    Snaive = SNAIVE(ORCL),
+    Naive = NAIVE(ORCL),
+    Media_Movel = ARIMA(ORCL ~ pdq(0,0,1)),
+    autoARIMA = ARIMA(ORCL, stepwise = FALSE, approx = FALSE),
+    autoARIMA_saz = ARIMA(ORCL, stepwise = FALSE, approx = FALSE, seasonal = TRUE),
+    ARIMA_saz_012011 = ARIMA(ORCL ~ pdq(0,1,2) + PDQ(0,1,1)),
+    ARIMA_saz_210011 = ARIMA(ORCL ~ pdq(2,1,0) + PDQ(0,1,1)),
+    ARIMA_saz_0301012 = ARIMA(ORCL ~ 0 + pdq(3,0,1) + PDQ(0,1,2)),
+    ARIMA_quad = ARIMA(ORCL ~ I(trend()^2)),
+    ARIMA_determ = ARIMA(ORCL ~ 1 + trend() + pdq(d = 0)),
+    ARIMA_estocastico = ARIMA(ORCL ~ pdq(d = 1)),
+    Regr_Harm_dinamica = ARIMA(ORCL ~ fourier(K=2) + PDQ(0,0,0)),
+    Regr_Harm_Din_MultSaz = ARIMA(ORCL ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    Regr_Harm_Din_Saz = ARIMA(ORCL ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) + fourier(period = "year", K = 2)),
+    Modelo_VAR = VAR(ORCL, ic = "bic"),
+    Random_Walk = RW(ORCL ~ drift()),
+    Rede_Neural_AR = NNETAR(ORCL, bootstrap = TRUE)
+  ) |>
+  forecast(h = "24 months")
+toc()
+
+
+# Projeções
+fit_ORCL <- lnretORCL |>
+  model(
+    Regr_Quebras = TSLM(ORCL ~ trend(knots = c(2018, 2019, 2020)))  # Faltava um parêntese aqui
+  )
+
+sim_ORCL <- fit_ORCL |> generate(h = 30, times = 5, bootstrap = TRUE)
+
+# Plot
+lnretORCL |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = ORCL)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim) +
+  labs(title="Retornos projetados da ORCL", y="Log Returns") +
+  guides(colour = "none")
+```
+
+```{r}
+# Processamento para IBM
+lnretIBM <- log_returns |> 
+  select(date, IBM) |> 
+  as_tsibble(index = date)
+
+treino <- lnretIBM |> filter_index(~"2025-01-01")
+
+# Modelagem
+tic()
+Modelos_IBM <- treino |>
+  model(
+    AjusteExp = ETS(IBM ~ error("A") + trend("N") + season("N")),
+    AjExp_aditivo = ETS(IBM ~ error("A") + trend("A") + season("A")),
+    AjExp_multiplicativo = ETS(IBM ~ error("M") + trend("A") + season("M")),
+    Croston = CROSTON(IBM),
+    HoltWinters = ETS(IBM ~ error("M") + trend("Ad") + season("M")),
+    Holt = ETS(IBM ~ error("A") + trend("A") + season("N")),
+    HoltAmort = ETS(IBM ~ error("A") + trend("Ad", phi = 0.9) + season("N")),
+    Regr_Comp = TSLM(IBM ~ trend() + season()),
+    Regr_Harmonica = TSLM(IBM ~ trend() + fourier(K = 2)),
+    Regr_Quebras = TSLM(IBM ~ trend(knots = c(2018, 2019, 2020))),
+    Snaive = SNAIVE(IBM),
+    Naive = NAIVE(IBM),
+    Media_Movel = ARIMA(IBM ~ pdq(0,0,1)),
+    autoARIMA = ARIMA(IBM, stepwise = FALSE, approx = FALSE),
+    autoARIMA_saz = ARIMA(IBM, stepwise = FALSE, approx = FALSE, seasonal = TRUE),
+    ARIMA_saz_012011 = ARIMA(IBM ~ pdq(0,1,2) + PDQ(0,1,1)),
+    ARIMA_saz_210011 = ARIMA(IBM ~ pdq(2,1,0) + PDQ(0,1,1)),
+    ARIMA_saz_0301012 = ARIMA(IBM ~ 0 + pdq(3,0,1) + PDQ(0,1,2)),
+    ARIMA_quad = ARIMA(IBM ~ I(trend()^2)),
+    ARIMA_determ = ARIMA(IBM ~ 1 + trend() + pdq(d = 0)),
+    ARIMA_estocastico = ARIMA(IBM ~ pdq(d = 1)),
+    Regr_Harm_dinamica = ARIMA(IBM ~ fourier(K=2) + PDQ(0,0,0)),
+    Regr_Harm_Din_MultSaz = ARIMA(IBM ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    Regr_Harm_Din_Saz = ARIMA(IBM ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) + fourier(period = "year", K = 2)),
+    Modelo_VAR = VAR(IBM, ic = "bic"),
+    Random_Walk = RW(IBM ~ drift()),
+    Rede_Neural_AR = NNETAR(IBM, bootstrap = TRUE)
+  ) |>
+  forecast(h = "24 months")
+toc()
+
+# Projeções
+fit_IBM <- lnretIBM |>
+  model(
+    Regr_Quebras = TSLM(IBM ~ trend(knots = c(2018, 2019, 2020))
+  )
+)
+sim_IBM <- fit_IBM |> generate(h = 30, times = 5, bootstrap = TRUE)
+
+# Plot
+lnretIBM |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = IBM)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim_IBM) +
+  labs(title="Retornos projetados da IBM", y="Log Returns") +
+  guides(colour = "none")
+```
+
+```{r}
+# Processamento para MSFT
+lnretMSFT <- log_returns |> 
+  select(date, MSFT) |> 
+  as_tsibble(index = date)
+
+treino <- lnretMSFT |> filter_index(~"2025-01-01")
+
+# Modelagem
+tic()
+Modelos_MSFT <- treino |>
+  model(
+    AjusteExp = ETS(MSFT ~ error("A") + trend("N") + season("N")),
+    AjExp_aditivo = ETS(MSFT ~ error("A") + trend("A") + season("A")),
+    AjExp_multiplicativo = ETS(MSFT ~ error("M") + trend("A") + season("M")),
+    Croston = CROSTON(MSFT),
+    HoltWinters = ETS(MSFT ~ error("M") + trend("Ad") + season("M")),
+    Holt = ETS(MSFT ~ error("A") + trend("A") + season("N")),
+    HoltAmort = ETS(MSFT ~ error("A") + trend("Ad", phi = 0.9) + season("N")),
+    Regr_Comp = TSLM(MSFT ~ trend() + season()),
+    Regr_Harmonica = TSLM(MSFT ~ trend() + fourier(K = 2)),
+    Regr_Quebras = TSLM(MSFT ~ trend(knots = c(2018, 2019, 2020))),
+    Snaive = SNAIVE(MSFT),
+    Naive = NAIVE(MSFT),
+    Media_Movel = ARIMA(MSFT ~ pdq(0,0,1)),
+    autoARIMA = ARIMA(MSFT, stepwise = FALSE, approx = FALSE),
+    autoARIMA_saz = ARIMA(MSFT, stepwise = FALSE, approx = FALSE, seasonal = TRUE),
+    ARIMA_saz_012011 = ARIMA(MSFT ~ pdq(0,1,2) + PDQ(0,1,1)),
+    ARIMA_saz_210011 = ARIMA(MSFT ~ pdq(2,1,0) + PDQ(0,1,1)),
+    ARIMA_saz_0301012 = ARIMA(MSFT ~ 0 + pdq(3,0,1) + PDQ(0,1,2)),
+    ARIMA_quad = ARIMA(MSFT ~ I(trend()^2)),
+    ARIMA_determ = ARIMA(MSFT ~ 1 + trend() + pdq(d = 0)),
+    ARIMA_estocastico = ARIMA(MSFT ~ pdq(d = 1)),
+    Regr_Harm_dinamica = ARIMA(MSFT ~ fourier(K=2) + PDQ(0,0,0)),
+    Regr_Harm_Din_MultSaz = ARIMA(MSFT ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = 7*30, K = 10) + fourier(period = 7*30, K = 5)), 
+    Regr_Harm_Din_Saz = ARIMA(MSFT ~ PDQ(0, 0, 0) + pdq(d = 0) + fourier(period = "month", K = 10) + fourier(period = "year", K = 2)),
+    Modelo_VAR = VAR(MSFT, ic = "bic"),
+    Random_Walk = RW(MSFT ~ drift()),
+    Rede_Neural_AR = NNETAR(MSFT, bootstrap = TRUE)
+  ) |>
+  forecast(h = "24 months")
+toc()
+
+# Projeções
+fit_MSFT <- lnretMSFT |>
+  model(
+    Regr_Quebras = TSLM(MSFT ~ trend(knots = c(2018, 2019, 2020))
+  )
+)
+sim_MSFT <- fit_MSFT |> generate(h = 30, times = 5, bootstrap = TRUE)
+
+# Plot
+lnretMSFT |>
+  filter_index("2025-01-01"~.) |>
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = MSFT)) +
+  geom_line(aes(y = .sim, colour = as.factor(.rep)),
+    data = sim_MSFT) +
+  labs(title="Retornos projetados da MSFT", y="Log Returns") +
+  guides(colour = "none")
+```
+
+  

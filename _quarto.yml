@@ -13,6 +13,9 @@ website:
         text: Companies
       - href: dashboard1.qmd
         text: Dashboard
+      - href: UnivForecasting_TS_logreturns.qmd
+        text: Forecast de Retornos
+        
         
       
       

@@ -1,0 +1,468 @@
+---
+title: "Ciência de Dados para Negócios: Big Data for Finance Project"
+subtitle: "Encontro 5"
+author: "Prof. Rodrigo Hermont Ozon"
+format:
+  html:
+    self-contained: true
+    toc: true
+    code-tools: true
+    code-fold: true
+    df-print: paged
+    css: 
+      - styles.css
+      - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css
+    extensions: [fontawesome]
+editor: visual
+---
+
+------------------------------------------------------------------------
+
+<left> ![](https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png){width="15%"} </left>
+
+------------------------------------------------------------------------
+
+<!-- no yml tem um styles.css que precisou ser editado pra aparecer sempre no conteudo a logo da FAE -->
+
+<a href="https://fae.edu/cursos/182302806/ciencia-de-dados-para-negocios.htm" target="_blank"> <img src="https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png" alt="Logo FAE" class="fixed-logo interactive-logo"/> </a> <!-- abrir e edita ro .css que esta junto da pasta desse qmd em anexo -->
+
+::: callout-note
+## Resumo
+
+<font size = 1>
+
+Este material apresenta uma introdução prática aos fundamentos da análise de portfólio, combinando teoria e aplicação prática em R e Python. O conteúdo abrange os seguintes tópicos:
+
+-   **Conceitos Básicos e Diversificação:**\
+    Explicamos os objetivos dos investidores e a importância de diversificar os investimentos para mitigar riscos, destacando como ativos com comportamentos diferentes podem se compensar.
+
+-   **Análise de Dados e Comparação de Ativos:**\
+    Demonstra-se como coletar dados históricos de futuros de commodities (usando quantmod em R e yahooquery em Python), normalizar os preços (base 100) e visualizar a evolução dos ativos ao longo do tempo. Isso permite identificar diferenças de performance e volatilidade entre os ativos.
+
+-   **Cálculo dos Retornos:**\
+    São calculados os log-retornos dos ativos, que, por serem aditivos, facilitam a acumulação de retornos e a construção da curva de patrimônio do portfólio.
+
+-   **Construção da Curva de Patrimônio (Equity Curve):**\
+    A partir de uma data de compra definida (por exemplo, "2020-01-02"), é calculado o retorno acumulado do portfólio utilizando uma carteira equi-ponderada e a estratégia buy-and-hold. Essa curva ilustra como os retornos se acumulam ao longo do tempo.
+
+-   **Análise Dinâmica de Risco:**\
+    Utilizando uma janela móvel de 60 dias, são calculadas métricas de risco como a volatilidade anualizada e o Sharpe Ratio. Essas métricas ajudam a identificar períodos de maior ou menor risco e a avaliar a eficiência do portfólio em termos de retorno ajustado ao risco.
+
+-   **Estratégias de Rebalanceamento e Análise de Drawdown:**\
+    O material compara estratégias de rebalanceamento – dinâmico (com ajuste automático quando há desvios superiores a 10%) e mensal – e analisa os drawdowns do portfólio, evidenciando os momentos de maiores perdas. Essa comparação auxilia na compreensão dos impactos dos diferentes métodos de ajuste dos pesos na performance e no risco do portfólio.
+
+Em resumo, os alunos aprendem a estruturar, monitorar e ajustar uma carteira de investimentos utilizando ferramentas estatísticas e computacionais, o que é fundamental para a tomada de decisões informadas na gestão de risco e retorno.
+
+</font>
+:::
+
+# Intro
+
+Este conteúdo é uma introdução prática aos fundamentos da análise de portfólio, abordando os "blocos de construção" essenciais para entender como montar e avaliar uma carteira de investimentos. Em resumo, o material ensina:
+
+-   **Conceitos Básicos e Diversificação:**\
+    Explica o objetivo central dos investidores – obter lucros enquanto limitam os riscos – e como a diversificação pode ajudar a mitigar perdas, pois ativos com comportamentos diferentes podem se compensar.
+
+-   **Análise de Dados e Comparação de Ativos:**\
+    Utiliza exemplos práticos (como comparar o desempenho da Coca-Cola com a PepsiCo) para demonstrar como visualizar a evolução do valor de um investimento ao longo do tempo. Isso é feito calculando a razão entre os preços das ações (por exemplo, a razão ko/pep) e plotando essa relação para identificar qual empresa teve melhor desempenho em determinado período.
+
+-   **Cálculo dos Pesos da Carteira:**\
+    Ensina como calcular os pesos de cada ativo quando se conhece o valor investido em cada um. Além disso, mostra como determinar os pesos em uma carteira ponderada por capitalização de mercado, onde cada peso é proporcional à capitalização do ativo em relação à soma total.
+
+-   **Cálculo do Retorno do Portfólio:**\
+    Demonstra que o retorno do portfólio pode ser calculado como a média ponderada dos retornos dos ativos individuais, utilizando tanto os retornos simples quanto os brutos (ou acumulados) para períodos múltiplos. Também destaca a importância de entender que ganhos e perdas de mesmo percentual não se compensam de forma simétrica – por exemplo, uma perda de 50% exige um ganho de 100% para recuperar o valor inicial.
+
+-   **Uso do PerformanceAnalytics:**\
+    Apresenta o pacote PerformanceAnalytics como uma ferramenta poderosa para:
+
+    -   Calcular os retornos dos ativos e do portfólio.
+    -   Comparar estratégias de investimento, especialmente entre **buy-and-hold** (manter os ativos sem ajustes) e **rebalancing** (ajustar periodicamente os pesos para manter a alocação original).
+    -   Monitorar a evolução dos pesos dos ativos ao longo do tempo, utilizando a opção `verbose` para extrair informações detalhadas, como os pesos no início e no final de cada período.
+
+Em suma, o conteúdo foca em ensinar os fundamentos da construção e avaliação de portfólios, combinando teoria com exemplos práticos em R (e, em versões adaptadas, em Python), para que o aluno compreenda como os investimentos podem ser estruturados, monitorados e ajustados de acordo com a estratégia desejada.
+
+::: panel-tabset
+## R
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	comment = NA
+)
+knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
+knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
+knitr::opts_chunk$set(message = FALSE) # Remove all messages # of R outputs
+
+```
+
+Carregamos os dados:
+
+```{r}
+
+tickers <- c(
+         "SAP",  # SAP
+    "ORCL",  # ORACLE
+    "CRM",  # SALESFORCE
+    "NOW",  # SERVICENOW
+    "IBM" , # IBM
+    "MSFT" # Microsoft
+)
+
+```
+
+Então baixo os dados via Yahoo!Finance:
+
+```{r}
+
+portfolioPrices <- NULL
+  for ( Ticker in tickers )
+    portfolioPrices <- cbind(
+      portfolioPrices, 
+      quantmod::getSymbols.yahoo(
+        Ticker,
+        from = "2019-01-01",
+        auto.assign = FALSE
+      )[,4]
+    )
+
+portfolioPrices <- portfolioPrices[apply(portfolioPrices, 1, function(x) all(!is.na(x))),]
+
+colnames(portfolioPrices) <- c(
+  "SAP",
+  "ORACLE",
+  "SALESFORCE",
+  "SERVICENOW",
+  "IBM",
+  "MICROSOFT"
+)
+
+# Visualizar com DT
+DT::datatable(tail(portfolioPrices), options = list(pageLength = 10, scrollX = TRUE)) 
+
+```
+
+Visualizando os dados, temos:
+
+```{r fig.width=9, fig.height=9}
+
+portfolioPrices |> as.data.frame() |>
+  dplyr::mutate(
+    time = seq_along( MICROSOFT )
+  ) |>
+  tidyr::pivot_longer(
+    !time,
+    names_to = "Variables",
+    values_to = "Value"  
+      ) |>
+  dplyr::group_by(Variables) |>
+  timetk::plot_time_series(
+    time,
+    Value,
+    .interactive = F, # Change for TRUE for better visualization
+    .facet_ncol = 2,
+    .smooth = FALSE
+  ) +
+  ggplot2::theme(
+    strip.background = ggplot2::element_rect(fill = "white", colour = "white")
+  )
+
+```
+
+O gráfico de séries temporais dos preços mostra como cada contrato futuro (como "SAP", "ORACLE", etc.) evoluiu desde 2019. Você pode notar diferenças de nível e volatilidade entre os ativos – por exemplo, alguns podem ter uma trajetória de alta mais acentuada, enquanto outros apresentam maior variação diária. Essa visualização reforça a importância da diversificação, pois cada ativo se comporta de forma distinta.
+
+### Simulando uma data de compra
+
+Neste exemplo, definimos uma data de compra (por exemplo, "2020-01-02") e usamos os dados até ontem para calcular o retorno do portfólio.
+
+```{r}
+
+# Definir a data de compra e a data final (ontem)
+data_compra <- as.Date("2020-01-02")
+data_final <- Sys.Date() - 1
+
+# Selecionar o período dos dados de preços para o portfólio
+portfolioPrices_periodo <- portfolioPrices[paste0(data_compra, "/", data_final)]
+
+# Visualizar os dados filtrados
+DT::datatable(tail(portfolioPrices_periodo), options = list(pageLength = 10, scrollX = TRUE))
+
+```
+
+### Calculando os Retornos e o Retorno do Portfólio para o Período
+
+Utilizaremos retornos discretos para essa análise.
+
+```{r}
+
+# Calcular os retornos diários discretos para o período definido
+returns_periodo <- PerformanceAnalytics::Return.calculate(portfolioPrices_periodo, method = "discrete")
+returns_periodo <- na.omit(returns_periodo)
+
+# Número de ativos na carteira e definir pesos iguais
+num_assets_periodo <- ncol(returns_periodo)
+equal_weights_periodo <- rep(1 / num_assets_periodo, num_assets_periodo)
+
+# Calcular o retorno do portfólio para o período (Buy & Hold, sem rebalanceamento)
+portfolio_return_periodo <- PerformanceAnalytics::Return.portfolio(R = returns_periodo, weights = equal_weights_periodo)
+
+# Visualizar os últimos retornos do portfólio
+tail(portfolio_return_periodo)
+
+```
+
+Embora não haja um gráfico de distribuição diretamente, a análise dos retornos diários (calculados via log-retornos) permite observar que as variações percentuais são relativamente pequenas no dia a dia, mas, quando acumuladas, podem resultar em diferenças significativas no valor do portfólio. Essa etapa é fundamental para entender como os retornos individuais se somam para afetar o desempenho global.
+
+### Análise Dinâmica: Janela Móvel de Volatilidade e Sharpe Ratio
+
+Com o objeto portfolio_return_periodo definido, podemos calcular métricas dinâmicas com uma janela móvel de 60 dias:
+
+```{r fig.width=9, fig.height=9}
+
+library(zoo)
+
+# Definir janela móvel de 60 dias
+window_size <- 60
+
+# Calcular a volatilidade (desvio padrão) dos retornos do portfólio em janela móvel e anualizar (252 dias)
+rolling_vol <- rollapply(portfolio_return_periodo, width = window_size, FUN = sd, by.column = FALSE, fill = NA) * sqrt(252)
+
+# Calcular o Sharpe Ratio (média/SD) para a janela móvel, também anualizado
+rolling_sharpe <- rollapply(portfolio_return_periodo, width = window_size, FUN = function(x) { mean(x) / sd(x) }, by.column = FALSE, fill = NA) * sqrt(252)
+
+# Converter as séries rolling para um data frame
+rolling_metrics_df <- data.frame(
+  Date = as.Date(index(rolling_vol)),
+  Volatility = coredata(rolling_vol),
+  Sharpe = coredata(rolling_sharpe)
+)
+
+# Plotar as métricas de volatilidade e Sharpe Ratio
+library(ggplot2)
+library(patchwork)
+
+# Gráfico da Volatilidade Anualizada
+p_vol <- ggplot(rolling_metrics_df, aes(x = Date, y = Volatility)) +
+  geom_line(color = "blue") +
+  labs(title = "Volatilidade (Anualizada)", x = "Data", y = "Volatilidade") +
+  theme_minimal()
+
+# Gráfico do Sharpe Ratio Anualizado
+p_sharpe <- ggplot(rolling_metrics_df, aes(x = Date, y = Sharpe)) +
+  geom_line(color = "red") +
+  labs(title = "Sharpe Ratio (Anualizado)", x = "Data", y = "Sharpe Ratio") +
+  theme_minimal()
+
+# Exibir os gráficos um acima do outro
+p_vol / p_sharpe
+
+
+```
+
+No gráfico que apresenta as métricas de volatilidade e do Sharpe Ratio com uma janela móvel de 60 dias, vemos duas curvas:
+
+-   Volatilidade Anualizada: Mostra a variação de risco do portfólio ao longo do tempo. Períodos com volatilidade mais alta indicam maior incerteza nos retornos.
+
+-   Sharpe Ratio Anualizado: Relaciona o retorno médio ao risco (volatilidade). Uma curva mais elevada sugere que, naquele período, o portfólio obteve um retorno ajustado ao risco mais favorável.
+
+Juntas, essas métricas ajudam a identificar momentos em que a relação retorno/risco se alterou, evidenciando, por exemplo, se o portfólio se tornou mais arriscado ou se houve períodos de eficiência na performance.
+
+### Curva de Patrimônio (Equity Curve) e Retorno Acumulado
+
+Calculamos a curva de patrimônio acumulada a partir dos retornos do portfólio e plotamos essa evolução:
+
+```{r fig.width=9}
+
+# Calcular a curva de patrimônio acumulada: produto acumulado de (1 + retorno)
+equity_curve <- cumprod(1 + portfolio_return_periodo)
+
+# Converter o objeto xts para um data frame para o timetk
+equity_curve_df <- data.frame(
+  Date = as.Date(index(equity_curve)),
+  Equity = as.numeric(equity_curve)
+)
+
+# Plotar a evolução da curva de patrimônio usando timetk
+library(timetk)
+plot_time_series(
+  equity_curve_df, 
+  Date, 
+  Equity, 
+  .interactive = FALSE,
+  .title = "Curva de Patrimônio Acumulada do Portfólio (Buy-and-Hold)",
+  .x_lab = "Data",
+  .y_lab = "Valor Acumulado (Base 1)"
+)
+
+# Calcular e exibir o retorno acumulado do portfólio em porcentagem
+retorno_acumulado <- prod(1 + portfolio_return_periodo) - 1
+print(paste("Retorno acumulado do portfólio de", format(data_compra, "%d/%m/%Y"),
+            "até", format(data_final, "%d/%m/%Y"), "é:", round(retorno_acumulado * 100, 2), "%"))
+
+```
+
+A curva de patrimônio acumulada apresenta o crescimento do portfólio ao longo do tempo, iniciando com um capital normalizado (base 1). Essa visualização permite observar como os retornos diários se acumulam e como o valor do portfólio evolui de forma cumulativa. Períodos de alta tendência resultam em elevações significativas da curva, enquanto quedas ou períodos de baixa se refletem em momentos de estagnação ou de retração.
+
+### Rebalanceamento Dinâmico e Análise de Drawdown
+
+Implementamos uma função para rebalanceamento dinâmico que reseta os pesos alvo sempre que algum ativo desvia mais de 10% do peso desejado e, em seguida, analisamos o drawdown.
+
+```{r}
+
+# Definir target_weights com base em returns_periodo
+num_assets_periodo <- ncol(returns_periodo)
+target_weights <- rep(1 / num_assets_periodo, num_assets_periodo)
+
+# Função para calcular o retorno do portfólio com rebalanceamento dinâmico por threshold
+calcular_retorno_dinamico <- function(returns, target_weights, threshold = 0.10) {
+  n <- ncol(returns)
+  current_weights <- target_weights  # Pesos iniciais (alvo)
+  port_returns <- numeric(nrow(returns))  # Vetor para armazenar os retornos diários do portfólio
+  
+  ret_mat <- as.matrix(returns)
+  
+  for (i in 1:nrow(ret_mat)) {
+    # Calcular o retorno do portfólio no dia: soma(w_i * r_i)
+    port_ret <- sum(current_weights * ret_mat[i, ])
+    port_returns[i] <- port_ret
+    
+    # Atualizar os pesos: multiplicar cada peso por (1 + r_i) e normalizar
+    new_weights <- current_weights * (1 + ret_mat[i, ])
+    new_weights <- new_weights / sum(new_weights)
+    
+    # Se algum peso desviar mais que o threshold do peso alvo, rebalanceia
+    if (any(abs(new_weights - target_weights) > threshold)) {
+      current_weights <- target_weights
+    } else {
+      current_weights <- new_weights
+    }
+  }
+  
+  # Retornar os retornos do portfólio como objeto xts (usando as mesmas datas dos retornos)
+  port_returns_xts <- xts::xts(port_returns, order.by = index(returns))
+  return(port_returns_xts)
+}
+
+# Calcular os retornos do portfólio com rebalanceamento dinâmico usando um threshold de 10%
+port_ret_dynamic <- calcular_retorno_dinamico(returns_periodo, target_weights, threshold = 0.10)
+
+```
+
+### Curva de Patrimônio e Plotagem com Rebalanceamento Dinâmico
+
+```{r fig.width=9, fig.height=4}
+
+# Calcular a curva de patrimônio acumulada com a estratégia dinâmica
+equity_dynamic <- cumprod(1 + port_ret_dynamic)
+
+# Converter para data frame para o timetk
+equity_dynamic_df <- data.frame(
+  Date = as.Date(index(equity_dynamic)),
+  Equity = as.numeric(equity_dynamic)
+)
+
+# Plotar a curva de patrimônio usando timetk
+plot_time_series(
+  equity_dynamic_df, 
+  Date, 
+  Equity, 
+  .interactive = FALSE,
+  .title = "Curva de Patrimônio - Rebalanceamento Dinâmico (Threshold 10%)",
+  .x_lab = "Data",
+  .y_lab = "Valor Acumulado (Base 1)"
+)
+
+```
+
+Curva de Patrimônio com Rebalanceamento Dinâmico: Ao aplicar o rebalanceamento dinâmico (com um threshold de 10%), a curva de patrimônio tende a se estabilizar, pois os pesos são resetados para a alocação original sempre que houver desvios excessivos. Isso ajuda a manter a diversificação e evita que um único ativo, com alta performance, acabe dominando a carteira.
+
+### Análise de Drawdown
+
+```{r fig.width=9, fig.height=4}
+
+# Plotar o gráfico de drawdown da estratégia dinâmica
+PerformanceAnalytics::chart.Drawdown(port_ret_dynamic, main = "Drawdown - Rebalanceamento Dinâmico")
+
+# Calcular o drawdown máximo
+max_dd <- PerformanceAnalytics::maxDrawdown(port_ret_dynamic)
+print(paste("Drawdown máximo:", round(max_dd * 100, 2), "%"))
+
+```
+
+Análise de Drawdown: O gráfico de drawdown mostra os períodos em que o portfólio sofreu perdas significativas a partir de picos anteriores. O drawdown máximo quantifica a maior queda percentual registrada. Se o drawdown máximo for relativamente baixo, isso sugere que a estratégia (especialmente com rebalanceamento dinâmico) conseguiu mitigar grandes perdas, ajudando a preservar o capital durante períodos de alta volatilidade.
+
+### Comparação com a Estratégia de Rebalanceamento Mensal
+
+```{r fig.width=9, fig.height=4}
+
+# Estratégia com rebalancing mensal usando returns_periodo
+pf_rebal <- PerformanceAnalytics::Return.portfolio(
+  R = returns_periodo, 
+  weights = target_weights, 
+  rebalance_on = "months"
+)
+equity_rebal <- cumprod(1 + pf_rebal)
+
+# Converter para data frame
+equity_rebal_df <- data.frame(
+  Date = as.Date(index(equity_rebal)),
+  Equity = as.numeric(equity_rebal)
+)
+
+# Combinar as curvas de patrimônio
+equity_combined_df <- merge(equity_dynamic, equity_rebal)
+colnames(equity_combined_df) <- c("Dynamic_Rebal", "Monthly_Rebal")
+equity_combined_df <- data.frame(Date = as.Date(index(equity_combined_df)), coredata(equity_combined_df))
+
+# Plotar as curvas de patrimônio para comparação
+library(ggplot2)
+ggplot(equity_combined_df, aes(x = Date)) +
+  geom_line(aes(y = Dynamic_Rebal, color = "Rebal Dinâmico")) +
+  geom_line(aes(y = Monthly_Rebal, color = "Rebal Mensal")) +
+  labs(title = "Comparação: Curva de Patrimônio",
+       x = "Data", y = "Valor Acumulado (Base 1)",
+       color = "Estratégia") +
+  theme_minimal()
+
+
+```
+
+No gráfico de comparação, as duas curvas (uma para a estratégia de rebalanceamento dinâmico e outra para a de rebalanceamento mensal) são plotadas juntas. Essa comparação revela:
+
+-   A estratégia de rebalanceamento mensal mantém os pesos próximos dos valores iniciais periodicamente, o que pode resultar em uma trajetória de patrimônio mais “suave”, mas com possivelmente menos aproveitamento de movimentos extremos de alguns ativos.
+
+-   A estratégia de rebalanceamento dinâmico ajusta os pesos somente quando há um desvio considerável, o que pode permitir maior captura de ganhos em períodos de forte alta em determinados ativos, mas também pode resultar em maior variação se os ativos oscilarem fortemente.
+
+-   A comparação ajuda a visualizar qual estratégia teria gerado melhor crescimento ou menor risco (drawdown) no período analisado.
+
+Em resumo, os gráficos fornecem uma visão integrada de como os preços e retornos dos ativos evoluem, como o portfólio acumula valor ao longo do tempo e como diferentes estratégias de rebalanceamento afetam tanto o desempenho quanto o risco. Essas análises são essenciais para entender não só a performance histórica, mas também para orientar decisões de investimento com base na gestão de risco e retorno.
+:::
+
+ 
+
+ 
+
+------------------------------------------------------------------------
+
+# References
+
+------------------------------------------------------------------------
+
+1.  **Markowitz, H. (1952).** *Portfolio Selection*. The Journal of Finance, 7(1), 77–91.\
+    [Link](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1952.tb01525.x)
+
+2.  **Sharpe, W. F. (1966).** *Mutual Fund Performance*. The Journal of Business, 39(1), 119–138.\
+    [Link](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1966.tb02865.x)
+
+3.  **Elton, E. J., Gruber, M. J., Brown, S. J., & Goetzmann, W. N. (2007).** *Modern Portfolio Theory and Investment Analysis* (9th ed.). Wiley.
+
+4.  **PerformanceAnalytics.** Econometric Tools for Performance and Risk Analysis.\
+    [CRAN: PerformanceAnalytics](https://cran.r-project.org/web/packages/PerformanceAnalytics/index.html)
+
+5.  **Hilpisch, Y. (2018).** *Python for Finance: Mastering Data-Driven Finance*. O'Reilly Media.
+
+ 
+
+ 
