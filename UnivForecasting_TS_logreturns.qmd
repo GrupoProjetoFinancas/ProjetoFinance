@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE,
 	comment = NA,
-	include = false
+	include = FALSE
 )
 knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
 knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
