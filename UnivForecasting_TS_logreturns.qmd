@@ -309,6 +309,7 @@ glimpse(lnretCRM)
 ```
 
 ```{r}
+#| include: false
 treino <- lnretCRM |>
   filter_index(~"2025-01-01")
 
@@ -398,6 +399,7 @@ toc()
 ```
 
 ```{r}
+#| include: false
 fit <- lnretCRM |>
   model(
     Regr_Quebras = TSLM(CRM ~ trend(knots = c(2018, 2019, 2020))), # Regressao com quebras estruturais
@@ -406,7 +408,8 @@ fit <- lnretCRM |>
 sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
 ```
 
-```{r fig.width=9, fig.height=4}
+```{r fig.height=4, fig.width=9}
+#| echo: false
 
 lnretCRM |>
   filter_index("2025-01-01"~.) |>
@@ -422,7 +425,8 @@ lnretCRM |>
 
  
 
-```{r fig.width=9, fig.height=3.5, fig.align='center'}
+```{r fig.align='center', fig.height=3.5, fig.width=9}
+#| echo: false
 
 # Processamento para NOW
 lnretNOW <- log_returns |> 
@@ -491,6 +495,7 @@ lnretNOW |>
 ```
 
 ```{r}
+#| echo: false
 # Processamento para ORCL
 lnretORCL <- log_returns |> 
   select(date, ORCL) |> 
@@ -554,6 +559,7 @@ lnretORCL |>
 ```
 
 ```{r}
+#| echo: false
 # Processamento para IBM
 lnretIBM <- log_returns |> 
   select(date, IBM) |> 
@@ -616,6 +622,7 @@ lnretIBM |>
 ```
 
 ```{r}
+#| echo: false
 # Processamento para MSFT
 lnretMSFT <- log_returns |> 
   select(date, MSFT) |> 
