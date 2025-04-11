@@ -10,27 +10,12 @@ format:
     css: 
       - styles.css
       - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css
-    extensions: [fontawesome]
 editor: visual
 ---
 
 <div>
 
 ## Log de Retornos
-
-```{r setup, include=FALSE}
-
-knitr::opts_chunk$set(
-	message = FALSE,
-	warning = FALSE,
-	comment = NA,
-	include = FALSE
-)
-knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
-knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
-knitr::opts_chunk$set(message = FALSE) # Remove all messages # of R outputs
-
-```
 
 ```{r}
 #| include: false
