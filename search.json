@@ -88,7 +88,7 @@
     "href": "companies.html#oracle",
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "Oracle",
-    "text": "Oracle\n\nHistória\nFundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).\n\n\nProdutos Principais\n\nOracle Database: Sistema de gerenciamento de banco de dados\nOracle Cloud Infrastructure (OCI): Plataforma de nuvem\nOracle Fusion: Suíte de aplicações empresariais\nJava: Linguagem de programação\nNetSuite: ERP em nuvem para médias empresas\n\n\n\nComparativo de Foco Estratégico\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade"
+    "text": "Oracle\n\nHistória\nFundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em bancos de dados relacionais com o Oracle Database. Expandiu para aplicações empresariais e cloud através de aquisições (PeopleSoft, Siebel, NetSuite).\n\n\nProdutos Principais\n\nOracle Database: Sistema de gerenciamento de banco de dados\nOracle Cloud Infrastructure (OCI): Plataforma de nuvem\nOracle Fusion: Suíte de aplicações empresariais\nJava: Linguagem de programação\nNetSuite: ERP em nuvem para médias empresas"
   },
   {
     "objectID": "companies.html#análise-comparativa",
@@ -183,5 +183,12 @@
     "title": "Retorno e previsões",
     "section": "",
     "text": "Visualizando os dados dos nossos últimos retornos dos preços, temos:\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPrecisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:\n\nVamos começar com uma série por vez \\(\\Rightarrow\\) SAP\n\nWar models\nSelecionamos o melhor modelo (1 fold de validação cruzada somente):\n\n\n\n  \n\n\n\nGero um cenário com o modelo:\nPlotamos os forecasts com esse modelo pra três cenários distintos no futuro:"
+  },
+  {
+    "objectID": "companies.html#microsoft",
+    "href": "companies.html#microsoft",
+    "title": "Perfil das Empresas de Tecnologia para Negócios",
+    "section": "Microsoft",
+    "text": "Microsoft\n\nHistória\nFundada em 1975 por Bill Gates e Paul Allen em Albuquerque, Novo México (EUA). Iniciou com o desenvolvimento do interpretador BASIC para Altair 8800 e revolucionou a computação pessoal com o sistema operacional MS-DOS (1981) e o Windows (1985). Tornou-se líder global em software, expandindo para enterprise com soluções como Azure (nuvem), Office 365 e aquisições estratégicas (LinkedIn, GitHub, Activision Blizzard). Atualmente é uma das empresas mais valiosas do mundo, com foco em nuvem, IA (Copilot) e ecossistema integrado.\n\n\nProdutos Principais\n\nWindows: Sistema operacional dominante em PCs (mais de 1.4 bilhão de usuários)\nMicrosoft Azure: Plataforma de nuvem (#2 no mercado global, atrás apenas da AWS)\nMicrosoft 365: Suíte de produtividade (Word, Excel, Teams, Outlook)\nMicrosoft Teams: Plataforma de colaboração corporativa (320 milhões de usuários em 2023)\nXbox: Plataforma de jogos (hardware, serviços e estúdios como Bethesda)\nLinkedIn: Rede social profissional (1 bilhão de membros em 2023)\nGitHub: Maior plataforma de desenvolvimento colaborativo (100 milhões de desenvolvedores)\nDynamics 365: Suíte de ERP e CRM para negócios\n.NET: Framework para desenvolvimento de software multiplataforma\nSurface: Linha de dispositivos premium (laptops, tablets, acessórios)\n\n\n\nComparativo de Foco Estratégico\n\n\n\n\n\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade\n\n\nMicrosoft\nSoftware e Cloud\nEcossistema integrado (Azure, Office, IA)"
   }
 ]

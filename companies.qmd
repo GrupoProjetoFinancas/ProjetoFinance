@@ -15,20 +15,23 @@ library(knitr)
 library(DT)
 
 empresas <- data.frame(
-  Empresa = c("SAP", "Salesforce", "ServiceNow", "IBM", "Oracle"),
-  Fundação = c(1972, 1999, 2004, 1911, 1977),
-  Sede = c("Walldorf, Alemanha", "San Francisco, EUA", "Santa Clara, EUA", "Armonk, EUA", "Austin, EUA"),
-  Receita_2023 = c("€31B", "$31.4B", "$8.6B", "$61.9B", "$50B"),
-  Funcionários = c("107.000", "79.000", "22.000", "288.000", "164.000"),
-  Foco_Principal = c("ERP", "CRM", "Gestão de Serviços", "IA e Cloud", "Banco de Dados e Cloud")
+  Empresa = c("SAP", "Salesforce", "ServiceNow", "IBM", "Oracle", "Microsoft"),
+  Fundação = c(1972, 1999, 2004, 1911, 1977, 1975),
+  Sede = c("Walldorf, Alemanha", "San Francisco, EUA", "Santa Clara, EUA", 
+           "Armonk, EUA", "Austin, EUA", "Redmond, EUA"),
+  Receita_2023 = c("€31B", "$31.4B", "$8.6B", "$61.9B", "$50B", "$211.9B"),
+  Funcionários = c("107.000", "79.000", "22.000", "288.000", "164.000", "221.000"),
+  Foco_Principal = c("ERP", "CRM", "Gestão de Serviços", 
+                    "IA e Cloud", "Banco de Dados e Cloud", 
+                    "Software, Cloud e IA")
 )
 
 datatable(empresas, 
-          options = list(pageLength = 5),
+          options = list(pageLength = 6),
           caption = "Comparativo das Principais Empresas de Software")
 ```
 
-## SAP 
+## SAP
 
 ### História
 
@@ -42,7 +45,7 @@ Fundada em 1972 em Walldorf, Alemanha, por cinco ex-funcionários da IBM, a SAP 
 -   **SAP Concur**: Gestão de despesas corporativas
 -   **SAP Fieldglass**: Gestão de força de trabalho contingente
 
-## Salesforce 
+## Salesforce
 
 ### História
 
@@ -57,7 +60,7 @@ Fundada em 1999 por Marc Benioff em San Francisco, pioneira no modelo SaaS (Soft
 -   **Tableau**: Análise e visualização de dados
 -   **Slack**: Colaboração corporativa
 
-## ServiceNow 
+## ServiceNow
 
 ### História
 
@@ -71,7 +74,7 @@ Criada em 2004 por Fred Luddy em Santa Clara, CA. Surgiu como plataforma de ITSM
 -   **HR Service Delivery**: Automação de RH
 -   **App Engine**: Desenvolvimento low-code
 
-## IBM 
+## IBM
 
 ### História
 
@@ -85,7 +88,7 @@ Fundada em 1911 como Computing-Tabulating-Recording Company, tornou-se Internati
 -   **IBM Security**: Segurança cibernética
 -   **IBM Z**: Mainframes para missão crítica
 
-## Oracle 
+## Oracle
 
 ### História
 
@@ -99,12 +102,41 @@ Fundada em 1977 por Larry Ellison em Redwood City, CA. Tornou-se líder em banco
 -   **Java**: Linguagem de programação
 -   **NetSuite**: ERP em nuvem para médias empresas
 
+## Microsoft
+
+### História
+
+Fundada em 1975 por **Bill Gates** e **Paul Allen** em Albuquerque, Novo México (EUA). Iniciou com o desenvolvimento do interpretador BASIC para Altair 8800 e revolucionou a computação pessoal com o sistema operacional **MS-DOS** (1981) e o **Windows** (1985). Tornou-se líder global em software, expandindo para enterprise com soluções como **Azure** (nuvem), **Office 365** e aquisições estratégicas (LinkedIn, GitHub, Activision Blizzard). Atualmente é uma das empresas mais valiosas do mundo, com foco em nuvem, IA (Copilot) e ecossistema integrado.
+
+### Produtos Principais
+
+-   **Windows**: Sistema operacional dominante em PCs (mais de 1.4 bilhão de usuários)
+
+-   **Microsoft Azure**: Plataforma de nuvem (#2 no mercado global, atrás apenas da AWS)
+
+-   **Microsoft 365**: Suíte de produtividade (Word, Excel, Teams, Outlook)
+
+-   **Microsoft Teams**: Plataforma de colaboração corporativa (320 milhões de usuários em 2023)
+
+-   **Xbox**: Plataforma de jogos (hardware, serviços e estúdios como Bethesda)
+
+-   **LinkedIn**: Rede social profissional (1 bilhão de membros em 2023)
+
+-   **GitHub**: Maior plataforma de desenvolvimento colaborativo (100 milhões de desenvolvedores)
+
+-   **Dynamics 365**: Suíte de ERP e CRM para negócios
+
+-   **.NET**: Framework para desenvolvimento de software multiplataforma
+
+-   **Surface**: Linha de dispositivos premium (laptops, tablets, acessórios)
+
 ### Comparativo de Foco Estratégico
 
-| Empresa    | Segmento Primário  | Diferencial Competitivo         |
-|------------|--------------------|---------------------------------|
-| SAP        | ERP                | Integração profunda industrial  |
-| Salesforce | CRM                | Ecossistema de aplicações       |
-| ServiceNow | ITSM               | Automação de fluxos de trabalho |
-| IBM        | IA & Cloud Híbrida | Soluções para grandes empresas  |
-| Oracle     | Banco de Dados     | Performance e escalabilidade    |
+| Empresa    | Segmento Primário  | Diferencial Competitivo                   |
+|------------|--------------------|-------------------------------------------|
+| SAP        | ERP                | Integração profunda industrial            |
+| Salesforce | CRM                | Ecossistema de aplicações                 |
+| ServiceNow | ITSM               | Automação de fluxos de trabalho           |
+| IBM        | IA & Cloud Híbrida | Soluções para grandes empresas            |
+| Oracle     | Banco de Dados     | Performance e escalabilidade              |
+| Microsoft  | Software e Cloud   | Ecossistema integrado (Azure, Office, IA) |
