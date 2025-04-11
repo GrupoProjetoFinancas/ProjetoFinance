@@ -1,7 +1,5 @@
 ---
-title: "Ciência de Dados para Negócios: Big Data for Finance Project"
-subtitle: "Encontro 5"
-author: "Prof. Rodrigo Hermont Ozon"
+title: "Retorno do Portfolio"
 format:
   html:
     self-contained: true
@@ -18,13 +16,7 @@ editor: visual
 
 ------------------------------------------------------------------------
 
-<left> ![](https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png){width="15%"} </left>
-
 ------------------------------------------------------------------------
-
-<!-- no yml tem um styles.css que precisou ser editado pra aparecer sempre no conteudo a logo da FAE -->
-
-<a href="https://fae.edu/cursos/182302806/ciencia-de-dados-para-negocios.htm" target="_blank"> <img src="https://raw.githubusercontent.com/profrhozon/site/main/logo_FAE.png" alt="Logo FAE" class="fixed-logo interactive-logo"/> </a> <!-- abrir e edita ro .css que esta junto da pasta desse qmd em anexo -->
 
 ::: callout-note
 ## Resumo

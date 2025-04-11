@@ -21,7 +21,7 @@ options(scipen = 999)
 theme_set(theme_minimal())
 
 # Download e preparação dos dados
-tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM")
+tickers <- c("SAP", "ORCL", "CRM", "NOW", "IBM","MSFT")
 data <- tq_get(tickers, from = Sys.Date() - years(5), to = Sys.Date())
 
 portfolio_prices <- data %>% 
@@ -180,7 +180,7 @@ for (ticker in tickers) {
 
 ```
 
-## Análise detalhada por ativo  {.tabset}
+## Análise detalhada por ativo {.tabset}
 
 ### SAP
 
@@ -217,44 +217,12 @@ resultados_completos$IBM
 resultados_completos$NOW
 ```
 
-## Retornos Diários {.tabset}
-
-### SAP
+### Microsoft
 
 ```{r}
 #| echo: false
-plots_log$SAP
+resultados_completos$MSFT
 ```
-
-### ORACLE
-
-```{r}
-#| echo: false
-plots_log$ORCL
-```
-
-### SALESFORCE
-
-```{r}
-#| echo: false
-plots_log$CRM
-```
-
-### IBM
-
-```{r}
-#| echo: false
-plots_log$IBM
-```
-
-### ServiceNOW
-
-```{r}
-#| echo: false
-plots_log$NOW
-```
-
-## 
 
 ## Previsão de Volatilidade {.tabset}
 
@@ -291,4 +259,11 @@ plots_vol$IBM
 ```{r}
 #| echo: false
 plots_vol$NOW
+```
+
+### Microsoft
+
+```{r}
+#| echo: false
+plots_vol$MSFT
 ```
