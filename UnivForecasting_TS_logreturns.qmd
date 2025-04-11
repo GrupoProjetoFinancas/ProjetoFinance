@@ -16,20 +16,16 @@ editor: visual
 
 ------------------------------------------------------------------------
 
-# Intro
-
-## 
-
-::: panel-tabset
 ## Log de Retornos  {.tabset}
 
+::: panel-tabset
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(
-	echo = TRUE,
 	message = FALSE,
 	warning = FALSE,
-	comment = NA
+	comment = NA,
+	include = false
 )
 knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
 knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
@@ -38,6 +34,7 @@ knitr::opts_chunk$set(message = FALSE) # Remove all messages # of R outputs
 ```
 
 ```{r}
+#| include: false
 
 library(tidyverse)
 library(tidymodels)
@@ -58,6 +55,7 @@ library(tictoc)
 Carregamos os dados:
 
 ```{r}
+#| include: false
 
 tickers <- c(
          "SAP",
@@ -70,9 +68,8 @@ tickers <- c(
 
 ```
 
-Então baixo os dados via Yahoo!Finance:
-
 ```{r}
+#| include: false
 
 portfolioPrices <- NULL
   for ( Ticker in tickers )
@@ -103,7 +100,8 @@ colnames(portfolioPrices) <- c(
 
 Visualizando os dados dos nossos últimos retornos dos preços, temos:
 
-```{r fig.width=9, fig.height=9}
+```{r fig.height=9, fig.width=9}
+#| include: false
 
 log_returns <- log(portfolioPrices) - log(lag(portfolioPrices))
 log_returns <- na.omit(log_returns)
@@ -149,6 +147,7 @@ Precisaremos fazer um forecasting de curto prazo com nossos dados históricos de
 -   Vamos começar com uma série por vez $\Rightarrow$ SAP
 
 ```{r}
+#| include: false
 
 # Primeiro converto pra tsibble
 
@@ -161,6 +160,7 @@ glimpse(lnretSAP)
 ```
 
 ```{r}
+#| include: false
 
 treino <- lnretSAP |>
   filter_index(~"2025-01-01")
@@ -170,6 +170,7 @@ treino <- lnretSAP |>
 War models
 
 ```{r}
+#| include: false
 
 tic()
 
@@ -256,6 +257,7 @@ toc()
 Selecionamos o melhor modelo (1 fold de validação cruzada somente):
 
 ```{r}
+#| echo: false
 
 Modelos |>
   accuracy(lnretSAP) |>
@@ -266,6 +268,7 @@ Modelos |>
 Gero um cenário com o modelo:
 
 ```{r}
+#| include: false
 
 fit <- lnretSAP |>
   model(
@@ -278,7 +281,8 @@ sim <- fit |> generate(h = 30, times = 5, bootstrap = TRUE)
 
 Plotamos os forecasts com esse modelo pra três cenários distintos no futuro:
 
-```{r fig.width=9, fig.height=4}
+```{r fig.height=4, fig.width=9}
+#| echo: false
 
 lnretSAP |>
   filter_index("2025-01-01"~.) |>
@@ -292,6 +296,7 @@ lnretSAP |>
 ```
 
 ```{r}
+#| include: false
 
 # Primeiro converto pra tsibble
 
@@ -310,6 +315,7 @@ treino <- lnretCRM |>
 ```
 
 ```{r}
+#| include: false
 tic()
 
 Modelos <- treino |>
