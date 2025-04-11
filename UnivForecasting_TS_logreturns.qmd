@@ -17,6 +17,19 @@ editor: visual
 
 ## Log de Retornos
 
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	comment = NA
+)
+knitr::opts_chunk$set(comment = NA)    # Remove all coments # of R outputs
+knitr::opts_chunk$set(warning = FALSE) # Remove all warnings # of R outputs
+knitr::opts_chunk$set(message = FALSE) # Remove all messages # of R outputs
+```
+
 ```{r}
 #| include: false
 
@@ -35,8 +48,6 @@ library(lubridate)
 library(tictoc)
 
 ```
-
-Carregamos os dados:
 
 ```{r}
 #| include: false
