@@ -1,8 +1,5 @@
 ---
-title: "Ciência de Dados para Negócios: Big Data for Finance Project"
-subtitle: "Encontro 6"
-author: "Prof. Rodrigo Hermont Ozon"
-date: "Last Update: `r Sys.Date()`"
+title: "Retorno e previsões"
 format:
   html:
     self-contained: true
@@ -24,6 +21,8 @@ editor: visual
 ## 
 
 ::: panel-tabset
+## Log de Retornos  {.tabset}
+
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(
@@ -115,7 +114,8 @@ tail(log_returns)
 
 ```
 
-```{r fig.width=9, fig.height=9}
+```{r fig.height=9, fig.width=9}
+#| echo: false
 
 ln_returns <- log_returns
 
