@@ -99,7 +99,7 @@ colnames(portfolioPrices) <- c(
 Visualizando os dados dos nossos últimos retornos dos preços, temos:
 
 ```{r fig.height=9, fig.width=9}
-#| include: false
+#| echo: false
 
 log_returns <- log(portfolioPrices) - log(lag(portfolioPrices))
 log_returns <- na.omit(log_returns)
@@ -420,8 +420,6 @@ lnretCRM |>
 
 ```
 :::
-
- 
 
 ```{r fig.align='center', fig.height=3.5, fig.width=9}
 #| echo: false
