@@ -14,7 +14,7 @@ format:
 editor: visual
 ---
 
-::: panel-tabset
+::: tabset
 ## Log de Retornos
 
 ```{r setup, include=FALSE}
@@ -138,7 +138,7 @@ ln_returns |> as.data.frame() |>
 
 ```
 
-### Modelagem com fpp3 e validação cruzada temporal  {.tabset}
+### Modelagem com fpp3 e validação cruzada temporal {.tabset}
 
 Precisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:
 

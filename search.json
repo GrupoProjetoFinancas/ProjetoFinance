@@ -168,7 +168,7 @@
     "href": "UnivForecasting_TS_logreturns.html",
     "title": "Retorno e previsões",
     "section": "",
-    "text": "Log de Retornos\n\n\nCarregamos os dados:\nVisualizando os dados dos nossos últimos retornos dos preços, temos:\n\nModelagem com fpp3 e validação cruzada temporal\nPrecisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:\n\nVamos começar com uma série por vez \\(\\Rightarrow\\) SAP\n\nWar models\nSelecionamos o melhor modelo (1 fold de validação cruzada somente):\nGero um cenário com o modelo:\nPlotamos os forecasts com esse modelo pra três cenários distintos no futuro:"
+    "text": "Carregamos os dados:\nVisualizando os dados dos nossos últimos retornos dos preços, temos:\n\n\nPrecisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:\n\nVamos começar com uma série por vez \\(\\Rightarrow\\) SAP\n\nWar models\nSelecionamos o melhor modelo (1 fold de validação cruzada somente):\nGero um cenário com o modelo:\nPlotamos os forecasts com esse modelo pra três cenários distintos no futuro:"
   },
   {
     "objectID": "UnivForecasting_TS_logreturns.html#section",
@@ -181,7 +181,7 @@
     "objectID": "UnivForecasting_TS_logreturns.html#log-de-retornos",
     "href": "UnivForecasting_TS_logreturns.html#log-de-retornos",
     "title": "Retorno e previsões",
-    "section": "Log de Retornos",
-    "text": "Log de Retornos\n\nModelagem com fpp3 e validação cruzada temporal\n\n\nPrecisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:\n\nVamos começar com uma série por vez \\(\\Rightarrow\\) SAP\n\nWar models\nSelecionamos o melhor modelo (1 fold de validação cruzada somente):\nGero um cenário com o modelo:\nPlotamos os forecasts com esse modelo pra três cenários distintos no futuro:"
+    "section": "",
+    "text": "Carregamos os dados:\nVisualizando os dados dos nossos últimos retornos dos preços, temos:\n\n\nPrecisaremos fazer um forecasting de curto prazo com nossos dados históricos de retornos pra formularmos nossas recomendações posteriores de compra, venda e espera:\n\nVamos começar com uma série por vez \\(\\Rightarrow\\) SAP\n\nWar models\nSelecionamos o melhor modelo (1 fold de validação cruzada somente):\nGero um cenário com o modelo:\nPlotamos os forecasts com esse modelo pra três cenários distintos no futuro:"
   }
 ]
