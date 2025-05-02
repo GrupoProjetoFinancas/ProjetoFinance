@@ -1,5 +1,17 @@
 ---
 title: "Fuzzy TOPSIS Análise"
+format:
+  html:
+    self-contained: true
+    toc: true
+    code-tools: true
+    code-fold: true
+    df-print: paged
+    css: 
+      - styles.css
+      - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css
+    extensions: [fontawesome]
+editor: visual
 ---
 
 # Pacotes
@@ -199,3 +211,44 @@ ranking <- data.frame(
 
 print(ranking)
 ```
+
+# --- PARTE 6: ANÁLISE DOS RESULTADOS ---
+
+## 🔍 Interpretação Estratégica
+
+### 🥇 MSFT (Microsoft)
+
+-   Maior índice de similaridade com a solução ideal.
+-   Combina **retorno sólido com volatilidade controlada**.
+-   Equilíbrio ideal entre desempenho e diversificação.
+-   **Recomendação:** Posição central no portfólio.
+
+### ⚡ NOW (ServiceNow)
+
+-   Segundo ativo mais atrativo, com **alto retorno esperado**.
+-   Também o ativo **mais volátil**, ideal para perfis moderados a arrojados.
+-   **Uso tático em cenários de alta expansão tecnológica.**
+
+### 🔎 ORCL e SAP
+
+-   **Desempenho intermediário.**
+-   ORCL: boa estabilidade, porém menos retorno.
+-   SAP: distribuição mais arriscada (alta curtose).
+-   **Complementares para equilíbrio de risco.**
+
+### ⚠️ CRM (Salesforce) e IBM
+
+-   CRM: retorno limitado e distribuição com caudas pesadas.
+-   IBM: menor retorno e **alta correlação com o mercado** (baixo benefício de diversificação).
+-   **Evitar como ativos principais.**
+
+------------------------------------------------------------------------
+
+## 📈 Critérios Considerados
+
+-   **Retorno médio** (benefício)
+-   **Volatilidade GARCH** (custo)
+-   **Assimetria (Skewness)** (benefício)
+-   **Curtose** (custo)
+-   **Correlação média entre ativos** (custo)
+-   **Correlação com S&P 500** (custo)

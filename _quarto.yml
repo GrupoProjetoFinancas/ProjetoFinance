@@ -6,7 +6,7 @@ project:
 website:
   title: "Análise Investimento em Companhias de Software"
   navbar:
-    top:
+    left:
       - href: index.qmd
         text: Home
       - href: companies.qmd
