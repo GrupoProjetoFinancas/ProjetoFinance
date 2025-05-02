@@ -32,6 +32,6 @@ format:
   dashboard:
     orientation: rows
     scroll: true
-    theme: cosmo
+    theme: cyborg
 
 editor: visual
