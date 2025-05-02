@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -116,40 +116,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span class="navbar-title">Análise Investimento em Companhias de Software</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./companies.html"> 
-<span class="menu-text">Companies</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./dashboard1.html"> 
-<span class="menu-text">Dashboard</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./RetPortfolio.html"> 
-<span class="menu-text">Retorno do Portfolio</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./UnivForecasting_TS_logreturns.html"> 
-<span class="menu-text">Forecast de Retornos</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./Fuzzy Topsis Análise.html" aria-current="page"> 
-<span class="menu-text">Análise Fuzzy TOPSIS</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
+        <div class="quarto-navbar-tools tools-end">
 </div>
+          <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -164,13 +133,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#pacotes" id="toc-pacotes" class="nav-link active" data-scroll-target="#pacotes">Pacotes</a></li>
   <li><a href="#parte-1-importação-dos-dados" id="toc-parte-1-importação-dos-dados" class="nav-link" data-scroll-target="#parte-1-importação-dos-dados">— PARTE 1: IMPORTAÇÃO DOS DADOS —</a></li>
-  <li><a href="#lista-de-tickers" id="toc-lista-de-tickers" class="nav-link" data-scroll-target="#lista-de-tickers">Lista de tickers</a></li>
-  <li><a href="#período" id="toc-período" class="nav-link" data-scroll-target="#período">Período</a></li>
-  <li><a href="#função-para-obter-preços-ajustados" id="toc-função-para-obter-preços-ajustados" class="nav-link" data-scroll-target="#função-para-obter-preços-ajustados">Função para obter preços ajustados</a></li>
-  <li><a href="#importar-dados" id="toc-importar-dados" class="nav-link" data-scroll-target="#importar-dados">Importar dados</a></li>
-  <li><a href="#remover-colunas-com-nas-excessivos" id="toc-remover-colunas-com-nas-excessivos" class="nav-link" data-scroll-target="#remover-colunas-com-nas-excessivos">Remover colunas com NAs excessivos</a></li>
-  <li><a href="#importar-sp-500" id="toc-importar-sp-500" class="nav-link" data-scroll-target="#importar-sp-500">Importar S&amp;P 500</a></li>
-  <li><a href="#parte-2-retornos-logarítmicos" id="toc-parte-2-retornos-logarítmicos" class="nav-link" data-scroll-target="#parte-2-retornos-logarítmicos">— PARTE 2: RETORNOS LOGARÍTMICOS —</a></li>
   <li><a href="#parte-3-métricas-para-matriz-de-decisão" id="toc-parte-3-métricas-para-matriz-de-decisão" class="nav-link" data-scroll-target="#parte-3-métricas-para-matriz-de-decisão">— PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO —</a></li>
   <li><a href="#retorno-médio" id="toc-retorno-médio" class="nav-link" data-scroll-target="#retorno-médio">1. Retorno médio</a></li>
   <li><a href="#volatilidade-garch11" id="toc-volatilidade-garch11" class="nav-link" data-scroll-target="#volatilidade-garch11">2. Volatilidade GARCH(1,1)</a></li>
@@ -209,78 +171,201 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="parte-1-importação-dos-dados" class="level1">
 <h1>— PARTE 1: IMPORTAÇÃO DOS DADOS —</h1>
-</section>
-<section id="lista-de-tickers" class="level1">
-<h1>Lista de tickers</h1>
-</section>
-<section id="período" class="level1">
-<h1>Período</h1>
-</section>
-<section id="função-para-obter-preços-ajustados" class="level1">
-<h1>Função para obter preços ajustados</h1>
-</section>
-<section id="importar-dados" class="level1">
-<h1>Importar dados</h1>
-</section>
-<section id="remover-colunas-com-nas-excessivos" class="level1">
-<h1>Remover colunas com NAs excessivos</h1>
-</section>
-<section id="importar-sp-500" class="level1">
-<h1>Importar S&amp;P 500</h1>
-</section>
-<section id="parte-2-retornos-logarítmicos" class="level1">
-<h1>— PARTE 2: RETORNOS LOGARÍTMICOS —</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>tickers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ORCL"</span>, <span class="st">"MSFT"</span>, <span class="st">"SAP"</span>, <span class="st">"IBM"</span>, <span class="st">"CRM"</span>,<span class="st">"NOW"</span>) </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>indice <span class="ot">&lt;-</span> <span class="st">"^GSPC"</span> <span class="co"># S&amp;P 500</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2019-01-01"</span>) </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> <span class="fu">Sys.Date</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>get_prices <span class="ot">&lt;-</span> <span class="cf">function</span>(ticker) </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  { <span class="fu">tryCatch</span>({ <span class="fu">Ad</span>(<span class="fu">getSymbols</span>(ticker, <span class="at">from =</span> start_date, <span class="at">to =</span> end_date, <span class="at">auto.assign =</span> <span class="cn">FALSE</span>)) }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>) }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="parte-3-métricas-para-matriz-de-decisão" class="level1">
 <h1>— PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO —</h1>
 </section>
 <section id="retorno-médio" class="level1">
 <h1>1. Retorno médio</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mean_returns <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(log_returns)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mean_returns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ORCL.Adjusted MSFT.Adjusted  SAP.Adjusted  IBM.Adjusted  CRM.Adjusted 
+ 0.0007974131  0.0009414785  0.0007362051  0.0006684582  0.0004360382 
+ NOW.Adjusted 
+ 0.0010567039 </code></pre>
+</div>
+</div>
 </section>
 <section id="volatilidade-garch11" class="level1">
 <h1>2. Volatilidade GARCH(1,1)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>get_garch_vol <span class="ot">&lt;-</span> <span class="cf">function</span>(series) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  spec <span class="ot">&lt;-</span> <span class="fu">ugarchspec</span>(<span class="at">variance.model =</span> <span class="fu">list</span>(<span class="at">model =</span> <span class="st">"sGARCH"</span>, <span class="at">garchOrder =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">mean.model =</span> <span class="fu">list</span>(<span class="at">armaOrder =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="at">include.mean =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">distribution.model =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">ugarchfit</span>(spec, series <span class="sc">*</span> <span class="dv">100</span>, <span class="at">solver =</span> <span class="st">"hybrid"</span>, <span class="at">silent =</span> <span class="cn">TRUE</span>), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.na</span>(fit)) <span class="fu">return</span>(<span class="cn">NA</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  forecast <span class="ot">&lt;-</span> <span class="fu">ugarchforecast</span>(fit, <span class="at">n.ahead =</span> <span class="dv">1</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sigma</span>(forecast)[<span class="dv">1</span>] <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>garch_vols <span class="ot">&lt;-</span> <span class="fu">apply</span>(log_returns, <span class="dv">2</span>, get_garch_vol)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'
+Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'
+Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'
+Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'
+Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'
+Warning in is.na(fit): is.na() aplicado a um objeto diferente de lista ou vetor
+de tipo 'S4'</code></pre>
+</div>
+</div>
 </section>
 <section id="assimetria-e-4.-curtose" class="level1">
 <h1>3. Assimetria e 4. Curtose</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>skew_vals <span class="ot">&lt;-</span> <span class="fu">apply</span>(log_returns, <span class="dv">2</span>, skewness)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>kurt_vals <span class="ot">&lt;-</span> <span class="fu">apply</span>(log_returns, <span class="dv">2</span>, kurtosis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="correlação-média-com-outros-ativos" class="level1">
 <h1>5. Correlação média com outros ativos</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(log_returns)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mean_corr <span class="ot">&lt;-</span> <span class="fu">apply</span>(corr_matrix, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">mean</span>(x[<span class="sc">-</span><span class="fu">which.max</span>(x)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="correlação-com-sp-500" class="level1">
 <h1>6. Correlação com S&amp;P 500</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sp_corr <span class="ot">&lt;-</span> <span class="fu">apply</span>(log_returns, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">cor</span>(x, sp500_returns))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="parte-4-matriz-de-decisão" class="level1">
 <h1>— PARTE 4: MATRIZ DE DECISÃO —</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>decision_matrix <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Retorno Médio</span><span class="st">`</span> <span class="ot">=</span> mean_returns,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Volatilidade (GARCH)</span><span class="st">`</span> <span class="ot">=</span> garch_vols,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Assimetria</span><span class="st">`</span> <span class="ot">=</span> skew_vals,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Curtose</span><span class="st">`</span> <span class="ot">=</span> kurt_vals,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação Média</span><span class="st">`</span> <span class="ot">=</span> mean_corr,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação com S&amp;P 500</span><span class="st">`</span> <span class="ot">=</span> sp_corr</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(decision_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>decision_matrix <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Retorno Médio</span><span class="st">`</span> <span class="ot">=</span> mean_returns,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Volatilidade (GARCH)</span><span class="st">`</span> <span class="ot">=</span> garch_vols,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Assimetria</span><span class="st">`</span> <span class="ot">=</span> skew_vals,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Curtose</span><span class="st">`</span> <span class="ot">=</span> kurt_vals,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação Média</span><span class="st">`</span> <span class="ot">=</span> mean_corr,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação com S&amp;P 500</span><span class="st">`</span> <span class="ot">=</span> sp_corr</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(decision_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>              Retorno.Médio Volatilidade..GARCH.  Assimetria   Curtose
-ORCL.Adjusted  0.0007974131           0.02290585  0.25942396 14.452343
-MSFT.Adjusted  0.0009414787           0.03034806 -0.18392863  7.675150
-SAP.Adjusted   0.0007362050           0.02088019 -1.48410067 25.519134
-IBM.Adjusted   0.0006684581           0.01922277 -0.43387842 11.176647
-CRM.Adjusted   0.0004360381           0.01935928 -0.18829947 13.336320
+ORCL.Adjusted  0.0007974131           0.02290588  0.25942524 14.452353
+MSFT.Adjusted  0.0009414785           0.03034809 -0.18393027  7.675170
+SAP.Adjusted   0.0007362051           0.02088021 -1.48410133 25.519145
+IBM.Adjusted   0.0006684582           0.01922270 -0.43387881 11.176659
+CRM.Adjusted   0.0004360382           0.01935918 -0.18830056 13.336331
 NOW.Adjusted   0.0010567039           0.04090898  0.04490301  3.604374
               Correlação.Média Correlação.com.S.P.500
 ORCL.Adjusted        0.4763322              0.6354531
-MSFT.Adjusted        0.5698626              0.8165888
-SAP.Adjusted         0.5026381              0.6557062
-IBM.Adjusted         0.3762729              0.6186836
-CRM.Adjusted         0.5216777              0.6561284
+MSFT.Adjusted        0.5698628              0.8165888
+SAP.Adjusted         0.5026381              0.6557064
+IBM.Adjusted         0.3762726              0.6186833
+CRM.Adjusted         0.5216778              0.6561284
 NOW.Adjusted         0.5198748              0.6496098</code></pre>
 </div>
 </div>
 </section>
 <section id="parte-5-fuzzy-topsis" class="level1">
 <h1>— PARTE 5: FUZZY TOPSIS —</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>criteria_type <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Retorno Médio"</span> <span class="ot">=</span> <span class="st">"benefit"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Volatilidade (GARCH)"</span> <span class="ot">=</span> <span class="st">"cost"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Assimetria"</span> <span class="ot">=</span> <span class="st">"benefit"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Curtose"</span> <span class="ot">=</span> <span class="st">"cost"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Correlação Média"</span> <span class="ot">=</span> <span class="st">"cost"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Correlação com S&amp;P 500"</span> <span class="ot">=</span> <span class="st">"cost"</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>fuzzy_weights <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Retorno Médio"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span>),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Volatilidade (GARCH)"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Assimetria"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>),</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Curtose"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Correlação Média"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>),</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Correlação com S&amp;P 500"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>normalize_column <span class="ot">&lt;-</span> <span class="cf">function</span>(x, type) {</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (type <span class="sc">==</span> <span class="st">"benefit"</span>) <span class="fu">rescale</span>(x, <span class="at">to =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="fu">rescale</span>(<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> x, <span class="at">to =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>norm_matrix <span class="ot">&lt;-</span> <span class="fu">map2_dfc</span>(decision_matrix, criteria_type, normalize_column)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(norm_matrix) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(decision_matrix)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(norm_matrix) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(decision_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Setting row names on a tibble is deprecated.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>apply_weights <span class="ot">&lt;-</span> <span class="cf">function</span>(x, w) <span class="fu">t</span>(<span class="fu">sapply</span>(x, <span class="cf">function</span>(val) val <span class="sc">*</span> w))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fuzzy_matrix <span class="ot">&lt;-</span> <span class="fu">map2</span>(norm_matrix, fuzzy_weights, apply_weights)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>fuzzy_matrix_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(cbind, fuzzy_matrix)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>get_ideal_solutions <span class="ot">&lt;-</span> <span class="cf">function</span>(fuzzy_col, type) {</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">&lt;-</span> fuzzy_col[,<span class="dv">1</span>]; m <span class="ot">&lt;-</span> fuzzy_col[,<span class="dv">2</span>]; u <span class="ot">&lt;-</span> fuzzy_col[,<span class="dv">3</span>]</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (type <span class="sc">==</span> <span class="st">"benefit"</span>) {</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">pos =</span> <span class="fu">c</span>(<span class="fu">max</span>(l), <span class="fu">max</span>(m), <span class="fu">max</span>(u)), <span class="at">neg =</span> <span class="fu">c</span>(<span class="fu">min</span>(l), <span class="fu">min</span>(m), <span class="fu">min</span>(u)))</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">pos =</span> <span class="fu">c</span>(<span class="fu">min</span>(l), <span class="fu">min</span>(m), <span class="fu">min</span>(u)), <span class="at">neg =</span> <span class="fu">c</span>(<span class="fu">max</span>(l), <span class="fu">max</span>(m), <span class="fu">max</span>(u)))</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>criteria_names <span class="ot">&lt;-</span> <span class="fu">names</span>(criteria_type)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>ideal_pos <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>ideal_neg <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(criteria_names)) {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  col_idx <span class="ot">&lt;-</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">3</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  col_data <span class="ot">&lt;-</span> fuzzy_matrix_df[, col_idx<span class="sc">:</span>(col_idx<span class="sc">+</span><span class="dv">2</span>)]</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  ideals <span class="ot">&lt;-</span> <span class="fu">get_ideal_solutions</span>(col_data, criteria_type[i])</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  ideal_pos[[criteria_names[i]]] <span class="ot">&lt;-</span> ideals<span class="sc">$</span>pos</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  ideal_neg[[criteria_names[i]]] <span class="ot">&lt;-</span> ideals<span class="sc">$</span>neg</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>calc_distance <span class="ot">&lt;-</span> <span class="cf">function</span>(a, b) <span class="fu">sqrt</span>(<span class="fu">mean</span>((a <span class="sc">-</span> b)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>d_pos <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(norm_matrix))</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>d_neg <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(norm_matrix))</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(norm_matrix)) {</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(criteria_names)) {</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    idx <span class="ot">&lt;-</span> (j <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">3</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    fuzzy_val <span class="ot">&lt;-</span> <span class="fu">unlist</span>(fuzzy_matrix_df[i, idx<span class="sc">:</span>(idx<span class="sc">+</span><span class="dv">2</span>)])</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    d_pos[i] <span class="ot">&lt;-</span> d_pos[i] <span class="sc">+</span> <span class="fu">calc_distance</span>(fuzzy_val, ideal_pos[[j]])</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    d_neg[i] <span class="ot">&lt;-</span> d_neg[i] <span class="sc">+</span> <span class="fu">calc_distance</span>(fuzzy_val, ideal_neg[[j]])</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>cc <span class="ot">&lt;-</span> d_neg <span class="sc">/</span> (d_pos <span class="sc">+</span> d_neg)</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>ranking <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>  Ação <span class="ot">=</span> <span class="fu">rownames</span>(decision_matrix),</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">Closeness =</span> cc</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(Closeness))</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ranking)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Ação Closeness
+1 MSFT.Adjusted 0.7389925
+2  NOW.Adjusted 0.6881917
+3 ORCL.Adjusted 0.4732682
+4  SAP.Adjusted 0.4422018
+5  CRM.Adjusted 0.2944790
+6  IBM.Adjusted 0.2217125</code></pre>
+</div>
+</div>
 
 
 </section>

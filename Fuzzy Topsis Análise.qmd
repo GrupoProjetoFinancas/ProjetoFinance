@@ -15,31 +15,23 @@ library(scales)
 
 # --- PARTE 1: IMPORTAÇÃO DOS DADOS ---
 
-# Lista de tickers 
-
 ```{r}
-#| include: false
+#| echo: true
 tickers <- c("ORCL", "MSFT", "SAP", "IBM", "CRM","NOW") 
 indice <- "^GSPC" # S&P 500
 ```
 
-# Período
-
 ```{r}
-#| include: false
+#| echo: true
 start_date <- as.Date("2019-01-01") 
 end_date <- Sys.Date()
 ```
 
-# Função para obter preços ajustados
-
 ```{r}
-#| include: false
+#| echo: true
 get_prices <- function(ticker) 
   { tryCatch({ Ad(getSymbols(ticker, from = start_date, to = end_date, auto.assign = FALSE)) }, error = function(e) NULL) }
 ```
-
-# Importar dados
 
 ```{r}
 #| include: false
@@ -48,23 +40,17 @@ names(price_list) <- tickers
 price_df <- do.call(merge, price_list)
 ```
 
-# Remover colunas com NAs excessivos
-
 ```{r}
 #| include: false
 price_df <- price_df[, colSums(is.na(price_df)) < nrow(price_df) * 0.2]
 price_df <- na.omit(price_df)
 ```
 
-# Importar S&P 500
-
 ```{r}
 #| include: false
 sp500 <- get_prices(indice) 
 sp500 <- na.omit(sp500)
 ```
-
-# --- PARTE 2: RETORNOS LOGARÍTMICOS ---
 
 ```{r}
 #| include: false
@@ -77,14 +63,15 @@ sp500_returns <- diff(log(sp500))[-1, ]
 # 1. Retorno médio
 
 ```{r}
-#| include: false
+#| echo: true
 mean_returns <- colMeans(log_returns)
+head(mean_returns)
 ```
 
 # 2. Volatilidade GARCH(1,1)
 
 ```{r}
-#| include: false
+#| echo: true
 get_garch_vol <- function(series) {
   spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
                      mean.model = list(armaOrder = c(0, 0), include.mean = FALSE),
@@ -100,7 +87,7 @@ garch_vols <- apply(log_returns, 2, get_garch_vol)
 # 3. Assimetria e 4. Curtose
 
 ```{r}
-#| include: false
+#| echo: true
 skew_vals <- apply(log_returns, 2, skewness)
 kurt_vals <- apply(log_returns, 2, kurtosis)
 ```
@@ -108,7 +95,7 @@ kurt_vals <- apply(log_returns, 2, kurtosis)
 # 5. Correlação média com outros ativos
 
 ```{r}
-#| include: false
+#| echo: true
 corr_matrix <- cor(log_returns)
 mean_corr <- apply(corr_matrix, 1, function(x) mean(x[-which.max(x)]))
 ```
@@ -116,7 +103,7 @@ mean_corr <- apply(corr_matrix, 1, function(x) mean(x[-which.max(x)]))
 # 6. Correlação com S&P 500
 
 ```{r}
-#| include: false
+#| echo: true
 sp_corr <- apply(log_returns, 2, function(x) cor(x, sp500_returns))
 ```
 
@@ -138,7 +125,7 @@ print(decision_matrix)
 # --- PARTE 5: FUZZY TOPSIS ---
 
 ```{r}
-#| include: false
+#| echo: true
 criteria_type <- c(
   "Retorno Médio" = "benefit",
   "Volatilidade (GARCH)" = "cost",
