@@ -17,13 +17,15 @@ website:
         text: Retorno do Portfolio
       - href: UnivForecasting_TS_logreturns.qmd
         text: Forecast de Retornos
+      - href: Fuzzy Topsis Análise.qmd
+        text: Análise Fuzzy TOPSIS
         
         
       
       
 format:
   html:
-    theme: cosmo
+    theme: cyborg
     css: styles.css
     toc: true
     page-layout: full

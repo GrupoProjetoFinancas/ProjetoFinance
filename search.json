@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Big Data for Finance",
     "section": "",
-    "text": "Arthur Costa Schaitza - https://faexai.github.io/portfolio2/\nPamela Roland - https://pamroland.github.io/meuportfolio/\nMatheus Kochaki de Liz -"
+    "text": "Arthur Costa Schaitza - https://faexai.github.io/portfolio2/\nPamela Roland - https://pamroland.github.io/meuportfolio/\nMatheus Kochaki de Liz - https://kochakimatheus.github.io/portfolio/"
   },
   {
     "objectID": "about.html",
@@ -25,7 +25,7 @@
     "href": "index.html#por",
     "title": "Big Data for Finance",
     "section": "",
-    "text": "Arthur Costa Schaitza - https://faexai.github.io/portfolio2/\nPamela Roland - https://pamroland.github.io/meuportfolio/\nMatheus Kochaki de Liz -"
+    "text": "Arthur Costa Schaitza - https://faexai.github.io/portfolio2/\nPamela Roland - https://pamroland.github.io/meuportfolio/\nMatheus Kochaki de Liz - https://kochakimatheus.github.io/portfolio/"
   },
   {
     "objectID": "index.html#nova-solução",
@@ -190,5 +190,12 @@
     "title": "Perfil das Empresas de Tecnologia para Negócios",
     "section": "Microsoft",
     "text": "Microsoft\n\nHistória\nFundada em 1975 por Bill Gates e Paul Allen em Albuquerque, Novo México (EUA). Iniciou com o desenvolvimento do interpretador BASIC para Altair 8800 e revolucionou a computação pessoal com o sistema operacional MS-DOS (1981) e o Windows (1985). Tornou-se líder global em software, expandindo para enterprise com soluções como Azure (nuvem), Office 365 e aquisições estratégicas (LinkedIn, GitHub, Activision Blizzard). Atualmente é uma das empresas mais valiosas do mundo, com foco em nuvem, IA (Copilot) e ecossistema integrado.\n\n\nProdutos Principais\n\nWindows: Sistema operacional dominante em PCs (mais de 1.4 bilhão de usuários)\nMicrosoft Azure: Plataforma de nuvem (#2 no mercado global, atrás apenas da AWS)\nMicrosoft 365: Suíte de produtividade (Word, Excel, Teams, Outlook)\nMicrosoft Teams: Plataforma de colaboração corporativa (320 milhões de usuários em 2023)\nXbox: Plataforma de jogos (hardware, serviços e estúdios como Bethesda)\nLinkedIn: Rede social profissional (1 bilhão de membros em 2023)\nGitHub: Maior plataforma de desenvolvimento colaborativo (100 milhões de desenvolvedores)\nDynamics 365: Suíte de ERP e CRM para negócios\n.NET: Framework para desenvolvimento de software multiplataforma\nSurface: Linha de dispositivos premium (laptops, tablets, acessórios)\n\n\n\nComparativo de Foco Estratégico\n\n\n\n\n\n\n\n\nEmpresa\nSegmento Primário\nDiferencial Competitivo\n\n\n\n\nSAP\nERP\nIntegração profunda industrial\n\n\nSalesforce\nCRM\nEcossistema de aplicações\n\n\nServiceNow\nITSM\nAutomação de fluxos de trabalho\n\n\nIBM\nIA & Cloud Híbrida\nSoluções para grandes empresas\n\n\nOracle\nBanco de Dados\nPerformance e escalabilidade\n\n\nMicrosoft\nSoftware e Cloud\nEcossistema integrado (Azure, Office, IA)"
+  },
+  {
+    "objectID": "Fuzzy Topsis Análise.html",
+    "href": "Fuzzy Topsis Análise.html",
+    "title": "Fuzzy TOPSIS Análise",
+    "section": "",
+    "text": "Pacotes\n\n\n— PARTE 1: IMPORTAÇÃO DOS DADOS —\n\n\nLista de tickers\n\n\nPeríodo\n\n\nFunção para obter preços ajustados\n\n\nImportar dados\n\n\nRemover colunas com NAs excessivos\n\n\nImportar S&P 500\n\n\n— PARTE 2: RETORNOS LOGARÍTMICOS —\n\n\n— PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO —\n\n\n1. Retorno médio\n\n\n2. Volatilidade GARCH(1,1)\n\n\n3. Assimetria e 4. Curtose\n\n\n5. Correlação média com outros ativos\n\n\n6. Correlação com S&P 500\n\n\n— PARTE 4: MATRIZ DE DECISÃO —\n\ndecision_matrix &lt;- data.frame(\n  `Retorno Médio` = mean_returns,\n  `Volatilidade (GARCH)` = garch_vols,\n  `Assimetria` = skew_vals,\n  `Curtose` = kurt_vals,\n  `Correlação Média` = mean_corr,\n  `Correlação com S&P 500` = sp_corr\n)\nprint(decision_matrix)\n\n              Retorno.Médio Volatilidade..GARCH.  Assimetria   Curtose\nORCL.Adjusted  0.0007974131           0.02290585  0.25942396 14.452343\nMSFT.Adjusted  0.0009414787           0.03034806 -0.18392863  7.675150\nSAP.Adjusted   0.0007362050           0.02088019 -1.48410067 25.519134\nIBM.Adjusted   0.0006684581           0.01922277 -0.43387842 11.176647\nCRM.Adjusted   0.0004360381           0.01935928 -0.18829947 13.336320\nNOW.Adjusted   0.0010567039           0.04090898  0.04490301  3.604374\n              Correlação.Média Correlação.com.S.P.500\nORCL.Adjusted        0.4763322              0.6354531\nMSFT.Adjusted        0.5698626              0.8165888\nSAP.Adjusted         0.5026381              0.6557062\nIBM.Adjusted         0.3762729              0.6186836\nCRM.Adjusted         0.5216777              0.6561284\nNOW.Adjusted         0.5198748              0.6496098\n\n\n\n\n— PARTE 5: FUZZY TOPSIS —"
   }
 ]

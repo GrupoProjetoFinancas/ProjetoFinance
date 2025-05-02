@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Big Data for Finance – Análise Investimento em Companhias de Software</title>
+<title>Fuzzy TOPSIS Análise – Análise Investimento em Companhias de Software</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -89,7 +123,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -108,6 +142,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./UnivForecasting_TS_logreturns.html"> 
 <span class="menu-text">Forecast de Retornos</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./Fuzzy Topsis Análise.html" aria-current="page"> 
+<span class="menu-text">Análise Fuzzy TOPSIS</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -124,11 +162,23 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#por" id="toc-por" class="nav-link active" data-scroll-target="#por">Por:</a></li>
-  <li><a href="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse" id="toc-empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="nav-link" data-scroll-target="#empresas-de-sistemas-na-bolsa-de-nova-york-nyse">Empresas de Sistemas na Bolsa de Nova York (NYSE)</a>
-  <ul class="collapse">
-  <li><a href="#como-investir" id="toc-como-investir" class="nav-link" data-scroll-target="#como-investir">📌 Como Investir?</a></li>
-  </ul></li>
+  <li><a href="#pacotes" id="toc-pacotes" class="nav-link active" data-scroll-target="#pacotes">Pacotes</a></li>
+  <li><a href="#parte-1-importação-dos-dados" id="toc-parte-1-importação-dos-dados" class="nav-link" data-scroll-target="#parte-1-importação-dos-dados">— PARTE 1: IMPORTAÇÃO DOS DADOS —</a></li>
+  <li><a href="#lista-de-tickers" id="toc-lista-de-tickers" class="nav-link" data-scroll-target="#lista-de-tickers">Lista de tickers</a></li>
+  <li><a href="#período" id="toc-período" class="nav-link" data-scroll-target="#período">Período</a></li>
+  <li><a href="#função-para-obter-preços-ajustados" id="toc-função-para-obter-preços-ajustados" class="nav-link" data-scroll-target="#função-para-obter-preços-ajustados">Função para obter preços ajustados</a></li>
+  <li><a href="#importar-dados" id="toc-importar-dados" class="nav-link" data-scroll-target="#importar-dados">Importar dados</a></li>
+  <li><a href="#remover-colunas-com-nas-excessivos" id="toc-remover-colunas-com-nas-excessivos" class="nav-link" data-scroll-target="#remover-colunas-com-nas-excessivos">Remover colunas com NAs excessivos</a></li>
+  <li><a href="#importar-sp-500" id="toc-importar-sp-500" class="nav-link" data-scroll-target="#importar-sp-500">Importar S&amp;P 500</a></li>
+  <li><a href="#parte-2-retornos-logarítmicos" id="toc-parte-2-retornos-logarítmicos" class="nav-link" data-scroll-target="#parte-2-retornos-logarítmicos">— PARTE 2: RETORNOS LOGARÍTMICOS —</a></li>
+  <li><a href="#parte-3-métricas-para-matriz-de-decisão" id="toc-parte-3-métricas-para-matriz-de-decisão" class="nav-link" data-scroll-target="#parte-3-métricas-para-matriz-de-decisão">— PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO —</a></li>
+  <li><a href="#retorno-médio" id="toc-retorno-médio" class="nav-link" data-scroll-target="#retorno-médio">1. Retorno médio</a></li>
+  <li><a href="#volatilidade-garch11" id="toc-volatilidade-garch11" class="nav-link" data-scroll-target="#volatilidade-garch11">2. Volatilidade GARCH(1,1)</a></li>
+  <li><a href="#assimetria-e-4.-curtose" id="toc-assimetria-e-4.-curtose" class="nav-link" data-scroll-target="#assimetria-e-4.-curtose">3. Assimetria e 4. Curtose</a></li>
+  <li><a href="#correlação-média-com-outros-ativos" id="toc-correlação-média-com-outros-ativos" class="nav-link" data-scroll-target="#correlação-média-com-outros-ativos">5. Correlação média com outros ativos</a></li>
+  <li><a href="#correlação-com-sp-500" id="toc-correlação-com-sp-500" class="nav-link" data-scroll-target="#correlação-com-sp-500">6. Correlação com S&amp;P 500</a></li>
+  <li><a href="#parte-4-matriz-de-decisão" id="toc-parte-4-matriz-de-decisão" class="nav-link" data-scroll-target="#parte-4-matriz-de-decisão">— PARTE 4: MATRIZ DE DECISÃO —</a></li>
+  <li><a href="#parte-5-fuzzy-topsis" id="toc-parte-5-fuzzy-topsis" class="nav-link" data-scroll-target="#parte-5-fuzzy-topsis">— PARTE 5: FUZZY TOPSIS —</a></li>
   </ul>
 </nav>
     </div>
@@ -137,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Big Data for Finance</h1>
+<h1 class="title">Fuzzy TOPSIS Análise</h1>
 </div>
 
 
@@ -154,77 +204,85 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="por" class="level2">
-<h2 class="anchored" data-anchor-id="por">Por:</h2>
-<p>Arthur Costa Schaitza - <a href="https://faexai.github.io/portfolio2/" class="uri">https://faexai.github.io/portfolio2/</a></p>
-<p>Pamela Roland - <a href="https://pamroland.github.io/meuportfolio/" class="uri">https://pamroland.github.io/meuportfolio/</a></p>
-<p>Matheus Kochaki de Liz - https://kochakimatheus.github.io/portfolio/</p>
+<section id="pacotes" class="level1">
+<h1>Pacotes</h1>
 </section>
-<section id="empresas-de-sistemas-na-bolsa-de-nova-york-nyse" class="level1">
-<h1>Empresas de Sistemas na Bolsa de Nova York (NYSE)</h1>
-<p>Aqui estão cinco grandes empresas de software e sistemas que são negociadas na <strong>Bolsa de Nova York (NYSE):</strong></p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Código</th>
-<th>Empresa</th>
-<th>Descrição</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>SAP</strong></td>
-<td>SAP SE</td>
-<td>Especializada em software de gestão empresarial (ERP, CRM, SCM, etc.).</td>
-</tr>
-<tr class="even">
-<td><strong>ORCL</strong></td>
-<td>Oracle Corporation</td>
-<td>Forte em bancos de dados, ERP e soluções na nuvem.</td>
-</tr>
-<tr class="odd">
-<td><strong>CRM</strong></td>
-<td>Salesforce Inc.</td>
-<td>Líder em CRM (Customer Relationship Management) e soluções SaaS.</td>
-</tr>
-<tr class="even">
-<td><strong>NOW</strong></td>
-<td>ServiceNow, Inc.</td>
-<td>Focada em automação de fluxos de trabalho e TI empresarial.</td>
-</tr>
-<tr class="odd">
-<td><strong>IBM</strong></td>
-<td>IBM Corporation</td>
-<td>Forte em infraestrutura de TI, nuvem híbrida e IA (Watson).</td>
-</tr>
-<tr class="even">
-<td><strong>MSFT</strong></td>
-<td>Microsoft Corporation</td>
-<td>É líder global em software, hardware e serviços de tecnologia</td>
-</tr>
-</tbody>
-</table>
-<section id="como-investir" class="level2">
-<h2 class="anchored" data-anchor-id="como-investir">📌 Como Investir?</h2>
-<p>Essas empresas são negociadas na NYSE e podem ser adquiridas através de corretoras internacionais.</p>
-<hr>
+<section id="parte-1-importação-dos-dados" class="level1">
+<h1>— PARTE 1: IMPORTAÇÃO DOS DADOS —</h1>
+</section>
+<section id="lista-de-tickers" class="level1">
+<h1>Lista de tickers</h1>
+</section>
+<section id="período" class="level1">
+<h1>Período</h1>
+</section>
+<section id="função-para-obter-preços-ajustados" class="level1">
+<h1>Função para obter preços ajustados</h1>
+</section>
+<section id="importar-dados" class="level1">
+<h1>Importar dados</h1>
+</section>
+<section id="remover-colunas-com-nas-excessivos" class="level1">
+<h1>Remover colunas com NAs excessivos</h1>
+</section>
+<section id="importar-sp-500" class="level1">
+<h1>Importar S&amp;P 500</h1>
+</section>
+<section id="parte-2-retornos-logarítmicos" class="level1">
+<h1>— PARTE 2: RETORNOS LOGARÍTMICOS —</h1>
+</section>
+<section id="parte-3-métricas-para-matriz-de-decisão" class="level1">
+<h1>— PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO —</h1>
+</section>
+<section id="retorno-médio" class="level1">
+<h1>1. Retorno médio</h1>
+</section>
+<section id="volatilidade-garch11" class="level1">
+<h1>2. Volatilidade GARCH(1,1)</h1>
+</section>
+<section id="assimetria-e-4.-curtose" class="level1">
+<h1>3. Assimetria e 4. Curtose</h1>
+</section>
+<section id="correlação-média-com-outros-ativos" class="level1">
+<h1>5. Correlação média com outros ativos</h1>
+</section>
+<section id="correlação-com-sp-500" class="level1">
+<h1>6. Correlação com S&amp;P 500</h1>
+</section>
+<section id="parte-4-matriz-de-decisão" class="level1">
+<h1>— PARTE 4: MATRIZ DE DECISÃO —</h1>
 <div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>decision_matrix <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Retorno Médio</span><span class="st">`</span> <span class="ot">=</span> mean_returns,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Volatilidade (GARCH)</span><span class="st">`</span> <span class="ot">=</span> garch_vols,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Assimetria</span><span class="st">`</span> <span class="ot">=</span> skew_vals,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Curtose</span><span class="st">`</span> <span class="ot">=</span> kurt_vals,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação Média</span><span class="st">`</span> <span class="ot">=</span> mean_corr,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Correlação com S&amp;P 500</span><span class="st">`</span> <span class="ot">=</span> sp_corr</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(decision_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Retorno.Médio Volatilidade..GARCH.  Assimetria   Curtose
+ORCL.Adjusted  0.0007974131           0.02290585  0.25942396 14.452343
+MSFT.Adjusted  0.0009414787           0.03034806 -0.18392863  7.675150
+SAP.Adjusted   0.0007362050           0.02088019 -1.48410067 25.519134
+IBM.Adjusted   0.0006684581           0.01922277 -0.43387842 11.176647
+CRM.Adjusted   0.0004360381           0.01935928 -0.18829947 13.336320
+NOW.Adjusted   0.0010567039           0.04090898  0.04490301  3.604374
+              Correlação.Média Correlação.com.S.P.500
+ORCL.Adjusted        0.4763322              0.6354531
+MSFT.Adjusted        0.5698626              0.8165888
+SAP.Adjusted         0.5026381              0.6557062
+IBM.Adjusted         0.3762729              0.6186836
+CRM.Adjusted         0.5216777              0.6561284
+NOW.Adjusted         0.5198748              0.6496098</code></pre>
 </div>
 </div>
-</div>
-
-
 </section>
+<section id="parte-5-fuzzy-topsis" class="level1">
+<h1>— PARTE 5: FUZZY TOPSIS —</h1>
+
+
 </section>
 
 </main> <!-- /main -->

@@ -1,0 +1,214 @@
+---
+title: "Fuzzy TOPSIS Análise"
+---
+
+# Pacotes
+
+```{r}
+#| include: false
+library(quantmod) 
+library(tidyverse) 
+library(e1071) 
+library(rugarch) 
+library(scales)
+```
+
+# --- PARTE 1: IMPORTAÇÃO DOS DADOS ---
+
+# Lista de tickers 
+
+```{r}
+#| include: false
+tickers <- c("ORCL", "MSFT", "SAP", "IBM", "CRM","NOW") 
+indice <- "^GSPC" # S&P 500
+```
+
+# Período
+
+```{r}
+#| include: false
+start_date <- as.Date("2019-01-01") 
+end_date <- Sys.Date()
+```
+
+# Função para obter preços ajustados
+
+```{r}
+#| include: false
+get_prices <- function(ticker) 
+  { tryCatch({ Ad(getSymbols(ticker, from = start_date, to = end_date, auto.assign = FALSE)) }, error = function(e) NULL) }
+```
+
+# Importar dados
+
+```{r}
+#| include: false
+price_list <- lapply(tickers, get_prices) 
+names(price_list) <- tickers 
+price_df <- do.call(merge, price_list)
+```
+
+# Remover colunas com NAs excessivos
+
+```{r}
+#| include: false
+price_df <- price_df[, colSums(is.na(price_df)) < nrow(price_df) * 0.2]
+price_df <- na.omit(price_df)
+```
+
+# Importar S&P 500
+
+```{r}
+#| include: false
+sp500 <- get_prices(indice) 
+sp500 <- na.omit(sp500)
+```
+
+# --- PARTE 2: RETORNOS LOGARÍTMICOS ---
+
+```{r}
+#| include: false
+log_returns <- diff(log(price_df))[-1, ] 
+sp500_returns <- diff(log(sp500))[-1, ]
+```
+
+# --- PARTE 3: MÉTRICAS PARA MATRIZ DE DECISÃO ---
+
+# 1. Retorno médio
+
+```{r}
+#| include: false
+mean_returns <- colMeans(log_returns)
+```
+
+# 2. Volatilidade GARCH(1,1)
+
+```{r}
+#| include: false
+get_garch_vol <- function(series) {
+  spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+                     mean.model = list(armaOrder = c(0, 0), include.mean = FALSE),
+                     distribution.model = "norm")
+  fit <- tryCatch(ugarchfit(spec, series * 100, solver = "hybrid", silent = TRUE), error = function(e) NA)
+  if (is.na(fit)) return(NA)
+  forecast <- ugarchforecast(fit, n.ahead = 1)
+  sigma(forecast)[1] / 100
+}
+garch_vols <- apply(log_returns, 2, get_garch_vol)
+```
+
+# 3. Assimetria e 4. Curtose
+
+```{r}
+#| include: false
+skew_vals <- apply(log_returns, 2, skewness)
+kurt_vals <- apply(log_returns, 2, kurtosis)
+```
+
+# 5. Correlação média com outros ativos
+
+```{r}
+#| include: false
+corr_matrix <- cor(log_returns)
+mean_corr <- apply(corr_matrix, 1, function(x) mean(x[-which.max(x)]))
+```
+
+# 6. Correlação com S&P 500
+
+```{r}
+#| include: false
+sp_corr <- apply(log_returns, 2, function(x) cor(x, sp500_returns))
+```
+
+# --- PARTE 4: MATRIZ DE DECISÃO ---
+
+```{r}
+#| echo: true
+decision_matrix <- data.frame(
+  `Retorno Médio` = mean_returns,
+  `Volatilidade (GARCH)` = garch_vols,
+  `Assimetria` = skew_vals,
+  `Curtose` = kurt_vals,
+  `Correlação Média` = mean_corr,
+  `Correlação com S&P 500` = sp_corr
+)
+print(decision_matrix)
+```
+
+# --- PARTE 5: FUZZY TOPSIS ---
+
+```{r}
+#| include: false
+criteria_type <- c(
+  "Retorno Médio" = "benefit",
+  "Volatilidade (GARCH)" = "cost",
+  "Assimetria" = "benefit",
+  "Curtose" = "cost",
+  "Correlação Média" = "cost",
+  "Correlação com S&P 500" = "cost"
+)
+
+fuzzy_weights <- list(
+  "Retorno Médio" = c(0.6, 0.7, 0.8),
+  "Volatilidade (GARCH)" = c(0.2, 0.3, 0.4),
+  "Assimetria" = c(0.1, 0.2, 0.3),
+  "Curtose" = c(0.2, 0.3, 0.4),
+  "Correlação Média" = c(0.3, 0.4, 0.5),
+  "Correlação com S&P 500" = c(0.2, 0.3, 0.4)
+)
+
+normalize_column <- function(x, type) {
+  if (type == "benefit") rescale(x, to = c(0, 1))
+  else rescale(max(x, na.rm = TRUE) - x, to = c(0, 1))
+}
+norm_matrix <- map2_dfc(decision_matrix, criteria_type, normalize_column)
+colnames(norm_matrix) <- colnames(decision_matrix)
+rownames(norm_matrix) <- rownames(decision_matrix)
+
+apply_weights <- function(x, w) t(sapply(x, function(val) val * w))
+fuzzy_matrix <- map2(norm_matrix, fuzzy_weights, apply_weights)
+fuzzy_matrix_df <- do.call(cbind, fuzzy_matrix)
+
+get_ideal_solutions <- function(fuzzy_col, type) {
+  l <- fuzzy_col[,1]; m <- fuzzy_col[,2]; u <- fuzzy_col[,3]
+  if (type == "benefit") {
+    list(pos = c(max(l), max(m), max(u)), neg = c(min(l), min(m), min(u)))
+  } else {
+    list(pos = c(min(l), min(m), min(u)), neg = c(max(l), max(m), max(u)))
+  }
+}
+
+criteria_names <- names(criteria_type)
+ideal_pos <- list()
+ideal_neg <- list()
+for (i in seq_along(criteria_names)) {
+  col_idx <- (i - 1) * 3 + 1
+  col_data <- fuzzy_matrix_df[, col_idx:(col_idx+2)]
+  ideals <- get_ideal_solutions(col_data, criteria_type[i])
+  ideal_pos[[criteria_names[i]]] <- ideals$pos
+  ideal_neg[[criteria_names[i]]] <- ideals$neg
+}
+
+calc_distance <- function(a, b) sqrt(mean((a - b)^2))
+
+d_pos <- numeric(nrow(norm_matrix))
+d_neg <- numeric(nrow(norm_matrix))
+
+for (i in 1:nrow(norm_matrix)) {
+  for (j in seq_along(criteria_names)) {
+    idx <- (j - 1) * 3 + 1
+    fuzzy_val <- unlist(fuzzy_matrix_df[i, idx:(idx+2)])
+    d_pos[i] <- d_pos[i] + calc_distance(fuzzy_val, ideal_pos[[j]])
+    d_neg[i] <- d_neg[i] + calc_distance(fuzzy_val, ideal_neg[[j]])
+  }
+}
+
+cc <- d_neg / (d_pos + d_neg)
+
+ranking <- data.frame(
+  Ação = rownames(decision_matrix),
+  Closeness = cc
+) %>% arrange(desc(Closeness))
+
+print(ranking)
+```
