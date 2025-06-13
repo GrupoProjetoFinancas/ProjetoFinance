@@ -1,0 +1,1086 @@
+---
+title: "O que este notebook oferece ao decisor"
+format:
+  html:
+    self-contained: true
+    toc: true
+    code-tools: true
+    code-fold: true
+    df-print: paged
+---
+
+1.  **Alocação Ótima por Cenário**
+    -   Para cada simulação (“sim1”, “sim2”, “sim3” e histórico), identifica a carteira que maximiza a relação retorno/risco.\
+    -   Garante **mínimo de 5 %** em cada ativo e soma total de 100 %.
+2.  **Trade-off Risco × Retorno**
+    -   Mostra o **retorno esperado** e o **risco (σ)** diário de cada portfólio ótimo.\
+    -   Calcula o **Sharpe Ratio** para comparar diretamente performance ajustada ao risco.
+3.  **Análise de Drawdown e Performance Cumulativa**
+    -   Exibe o **crescimento acumulado** do capital em 22 dias.\
+    -   Destaca o **drawdown máximo** (queda percentual) que a carteira pode sofrer antes de recuperar.
+4.  **Visualizações Interativas**
+    -   Gráficos com **fronteira eficiente**, **simulações Monte Carlo**, **máximo Sharpe** e **bar chart** de pesos.\
+    -   Drawdown e riqueza (wealth index) em painéis sincronizados.
+5.  **Tomada de Decisão Rápida**
+    -   Permite escolher o cenário (histórico ou simulado) que apresenta o melhor equilíbrio risco-retorno.\
+    -   Informa se a volatilidade esperada e o drawdown máximo estão dentro da **tolerância** da sua estratégia de investimento.\
+    -   Ajuda a justificar o peso de cada ativo com base em métricas sólidas e visuais claros.
+
+------------------------------------------------------------------------
+
+🔑 **Em resumo:** o notebook dá um roteiro completo para\
+- **quantificar** risco e retorno,\
+- **comparar** cenários,\
+- **escolher** alocações sólidas,\
+- **monitorar** drawdown,\
+conduzindo a decisões de investimento mais embasadas e transparentes.
+
+```{r}
+
+start_time <- Sys.time()
+
+install.packages(
+  c(
+    'tidyverse',   # ggplot2, dplyr, tidyr, purrr
+    'quantmod',    # getSymbols.yahoo
+    'zoo',         # rollapply
+    'tsibble',     # as_tsibble
+    'fpp3',        # model(), generate()
+    'lubridate',   # manipulação de datas
+    'openxlsx'     # leitura/escrita .xlsx
+  ),
+  repos = 'https://cloud.r-project.org'
+)
+
+end_time <- Sys.time()
+
+time_taken <- end_time - start_time
+
+print(paste("Time taken:", time_taken))
+```
+
+```{r}
+#| include: false
+
+
+library(tidyverse)   # ggplot2, dplyr, tidyr, purrr
+library(tsibble)     # as_tsibble
+library(fpp3)        # model(), generate()
+library(quantmod)    # getSymbols.yahoo
+library(zoo)         # fortify.zoo(), rollapply
+library(openxlsx)
+
+```
+
+```{r}
+
+# 1) Parâmetros
+tickers    <- c(
+    "SAP",
+    "IBM",
+    "NOW",
+    "CRM",
+    "MSFT",
+    "ORCL"
+)
+
+start_date <- "2019-01-01"
+knots      <- c(2020, 2022, 2024)
+window     <- 5     # janela móvel para vol
+n_ahead    <- 22    # horizonte de forecast
+
+# 2) Baixa preços de fechamento e calcula log-retornos (sem timetk)
+prices_list     <- map(tickers, ~ getSymbols.yahoo(.x,
+                                                   from        = start_date,
+                                                   auto.assign = FALSE)[,4])
+portfolioPrices <- do.call(cbind, prices_list)
+portfolioPrices <- portfolioPrices[complete.cases(portfolioPrices), ]
+
+# calcula log-retornos em xts
+ret_xts <- diff(log(portfolioPrices))
+
+# converte para tibble usando fortify.zoo
+log_returns <- fortify.zoo(ret_xts) %>%
+  rename(date = Index) %>%
+  as_tibble() %>%
+  drop_na()
+
+# 3) Converte para tsibble e ajusta TSLM com quebras
+tsbl_returns <- log_returns %>%
+  pivot_longer(-date, names_to = "asset", values_to = "ret") %>%
+  as_tsibble(key = asset, index = date)
+
+models_all <- tsbl_returns %>%
+  model(Regr_Quebras = TSLM(ret ~ trend(knots = knots)))
+
+# 4) Define próximos 22 dias úteis
+last_date    <- max(tsbl_returns$date)
+future_dates <- seq.Date(last_date + 1, by = "day", length.out = 50)
+future_biz   <- head(future_dates[!weekdays(future_dates) %in% c("Saturday","Sunday")],
+                     n_ahead)
+
+future_tsbl <- tibble(
+  asset = rep(unique(tsbl_returns$asset), each = n_ahead),
+  date  = rep(future_biz, times = length(unique(tsbl_returns$asset)))
+) %>%
+  as_tsibble(key = asset, index = date)
+
+# 5) Gera 3 cenários de forecast de retornos (bootstrap)
+set.seed(1234)
+sims_all <- models_all %>%
+  generate(new_data = future_tsbl, times = 3, bootstrap = TRUE)
+
+# 6) Prepara data.frame com retornos (histórico + 3 simulações)
+ret_hist <- log_returns %>%
+  tail(252) %>%
+  pivot_longer(-date, names_to = "asset", values_to = "ret") %>%
+  mutate(.rep = "hist")
+
+ret_fore <- sims_all %>%
+  as_tibble() %>%
+  rename(ret = .sim) %>%
+  filter(date > last_date) %>%
+  mutate(.rep = paste0("sim", .rep))
+
+ret_all <- bind_rows(ret_hist, ret_fore)
+
+# 7) Calcula volatilidade móvel (desvio-padrão) dentro de cada série x cenário
+ret_all <- ret_all %>%
+  group_by(asset, .rep) %>%
+  arrange(date) %>%
+  mutate(
+    vol = rollapply(
+      data  = ret,
+      width = window,
+      FUN   = sd,
+      na.rm = TRUE,
+      fill  = NA,
+      align = "right"
+    )
+  ) %>%
+  ungroup()
+```
+
+```{r}
+
+# 8) Visualizações
+
+# 8.1) Retornos
+ggplot(ret_all, aes(x = date, y = ret, color = .rep, linetype = .rep)) +
+  geom_line() +
+  facet_wrap(~ asset, scales = "free_y", ncol = 2) +
+  labs(
+    title    = paste0("Retornos: Histórico (252 dias) & ", n_ahead, " Forecasts"),
+    x        = "Data",
+    y        = "Log-retorno",
+    color    = "Cenário",
+    linetype = "Cenário"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+
+# 8.2) Volatilidade móvel
+ggplot(ret_all, aes(x = date, y = vol, color = .rep, linetype = .rep)) +
+  geom_line() +
+  facet_wrap(~ asset, scales = "free_y", ncol = 2) +
+  labs(
+    title    = paste0("Volatilidade Móvel (", window, " dias): Histórico & Forecasts"),
+    x        = "Data",
+    y        = "Desvio-padrão móvel",
+    color    = "Cenário",
+    linetype = "Cenário"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+
+
+library(tidyverse)
+library(openxlsx)
+
+# supondo que você já tenha o objeto ret_all (com date, asset, ret, .rep, vol)
+
+# 1) cria o workbook
+wb <- createWorkbook()
+
+# 2) identifica cenários
+cenarios <- unique(ret_all$.rep)
+
+# 3) define estilo numérico (6 casas decimais; Excel no Windows PT-BR exibirá vírgulas)
+numStyle <- createStyle(numFmt = "#,##0.000000")
+
+# 4) para cada cenário, pivot e escreve em aba própria
+for(s in cenarios) {
+  df <- ret_all %>%
+    filter(.rep == s) %>%
+    select(date, asset, ret, vol) %>%
+    pivot_wider(
+      names_from  = asset,
+      values_from = c(ret, vol),
+      names_glue  = "{asset}_{.value}"
+    )
+
+  addWorksheet(wb, sheetName = s)
+  writeData(wb, sheet = s, x = df, withFilter = TRUE)
+
+  # aplica o estilo numérico em todas as colunas, exceto a data (coluna 1)
+  addStyle(
+    wb, sheet = s, style = numStyle,
+    rows = 2:(nrow(df) + 1),
+    cols = 2:ncol(df),
+    gridExpand = TRUE
+  )
+  setColWidths(wb, sheet = s, cols = 1:ncol(df), widths = "auto")
+}
+
+# 5) salva o arquivo
+saveWorkbook(wb, file = "retornos_e_volatilidades.xlsx", overwrite = TRUE)
+
+```
+
+## Fronteiras Eficientes via Simulação de Monte Carlo e Plotly
+
+O próximo bloco de código gera, para cada um dos quatro cenários (`hist`, `sim1`, `sim2`, `sim3`), uma **aproximação empírica da fronteira eficiente** usando simulações de Monte Carlo e exibe tudo num gráfico 2×2 interativo com Plotly. Além disso aponta a **carteira de máximo Sharpe** em cada cenário.
+
+### 1. Dados e Pré-processamento
+
+-   Lemos a planilha `retornos_e_volatilidades.xlsx`, que contém colunas `ret_<ativo>` com os **retornos diários simulados**.\
+-   Para cada cenário $s$, montamos a matriz de retornos $$
+      R^{(s)} \in \mathbb R^{T\times n},  
+      \quad R^{(s)}_{t,j} = \text{retorno do ativo }j\text{ no dia }t.
+    $$
+-   Removemos ativos com dados inválidos (Inf ou NaN) ou variância zero.
+
+### 2. Simulação de Carteiras Aleatórias
+
+-   Geramos $N=50\,000$ vetores de pesos $$
+      W_i \sim \mathrm{Dirichlet}(1,\dots,1),\quad i=1,\dots,N,
+      \;\sum_{j=1}^n w_{ij}=1,\;w_{ij}\ge0.
+    $$
+-   Para cada carteira (i), calculamos:
+    -   **Retorno esperado**\
+        $$
+          R_i \;=\;\sum_{j=1}^n w_{ij}\,\mu_j,
+          \quad \mu_j = \frac1T\sum_{t=1}^T R^{(s)}_{t,j}.
+        $$
+    -   **Risco** (desvio‐padrão ou idealmente GARCH(1,1) com Student-t assimétrica)
+
+### 3. Carteira de Máximo Sharpe
+
+-   O **índice de Sharpe** diário: $$
+      S_i = \frac{R_i - R_f}{\sigma_i},
+      \quad R_f = 0.
+    $$
+-   Seleciona a carteira $i^* = \arg\max_i S_i$ como a solução de **Melhor Relação Retorno/Risco**.
+
+### 4. Fronteira Eficiente Empírica
+
+-   Ordenamos as simulações por retorno $R_i$ crescente.\
+-   Construímos o envelope de risco mínimo $\sigma$ para cada nível de $R$: $$
+      \text{fronteira} \;=\;\bigl\{(\sigma_i,R_i)\mid \sigma_i < \min_{j<i}\sigma_j\bigr\}.
+    $$
+
+### 5. Visualização com Plotly
+
+Em cada um dos 4 subplots 2×2: - **Pontos cinza**: todas as simulações $(\sigma_i,R_i)$.\
+- **Linha vermelha**: fronteira eficiente empírica.\
+- **Estrela dourada**: carteira de máximo Sharpe.
+
+O gráfico é interativo: dá zoom, mostra tooltip com valores etc.
+
+------------------------------------------------------------------------
+
+```{r}
+
+# 1) Carrega a única biblioteca necessária para ler Excel
+# install.packages("readxl") # Descomente para instalar, se necessário
+library(readxl)
+
+# 2) Localiza o arquivo Excel
+# Procura por qualquer nome que comece com 'retornos_e_volatilidades'
+excel_files <- list.files(pattern = "^retornos_e_volatilidades.*\\.xlsx$")
+if (length(excel_files) == 0) {
+  stop("Nenhum arquivo retornos_e_volatilidades*.xlsx encontrado")
+}
+xls_path <- excel_files[1]
+
+# 3) Parâmetros de Monte Carlo
+N_PORTFOLIOS <- 50000
+RISK_FREE    <- 0.0
+
+# 4) Carrega os nomes de todas as abas (cenários)
+sheets <- excel_sheets(xls_path)
+
+# 5) Prepara a janela de gráficos para um layout 2x2
+# oma -> margem externa para o título principal
+# mar -> margem interna para cada gráfico
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4.5, 4.5, 3, 1))
+
+# 6) Loop por cada cenário (aba)
+for (i in 1:length(sheets)) {
+  sc <- sheets[i]
+  
+  # 6.1) Lê a aba e a converte para um data.frame padrão
+  df <- as.data.frame(read_excel(xls_path, sheet = sc))
+  
+  # 6.2) Filtra e limpa os dados de retorno
+  # Seleciona colunas que terminam com "_ret"
+  rets <- df[, grepl("_ret$", names(df))]
+  # Renomeia as colunas, removendo o sufixo "_ret"
+  names(rets) <- sub("_ret$", "", names(rets))
+  # Remove colunas que contenham qualquer valor NA ou Infinito
+  rets <- rets[, colSums(is.na(rets) | is.infinite(as.matrix(rets))) == 0]
+  
+  tickers <- names(rets)
+  mu      <- colMeans(rets)
+  cov_mat <- cov(rets)
+  n_assets <- length(tickers)
+  
+  # 6.3) Simula carteiras via distribuição de Dirichlet
+  # Gera pesos aleatórios que somam 1 para cada carteira
+  # Nota: rgamma normalizado é um método eficiente para simular Dirichlet
+  gammas  <- matrix(rgamma(N_PORTFOLIOS * n_assets, shape = 1), nrow = N_PORTFOLIOS)
+  W       <- gammas / rowSums(gammas)
+  
+  # Calcula o retorno e risco de cada carteira (operações de matriz vetorizadas)
+  port_rets  <- W %*% mu
+  port_vars  <- diag(W %*% cov_mat %*% t(W))
+  port_risks <- sqrt(port_vars)
+  
+  # 6.4) Encontra a carteira de Máximo Sharpe Ratio
+  sharpe <- (port_rets - RISK_FREE) / port_risks
+  idx_sh <- which.max(sharpe)
+  opt_ret  <- port_rets[idx_sh]
+  opt_risk <- port_risks[idx_sh]
+  
+  # 6.5) Constrói a fronteira eficiente empírica
+  # Ordena as carteiras pelo risco e encontra o máximo retorno acumulado
+  df_mc <- data.frame(risk = as.vector(port_risks), ret = as.vector(port_rets))
+  df_mc <- df_mc[order(df_mc$risk), ]
+  frontier <- data.frame(
+    risk = df_mc$risk,
+    ret  = cummax(df_mc$ret)
+  )
+  
+  # 6.6) Traça o gráfico para o cenário atual
+  # Simulações (pontos cinza)
+  plot(
+    x = df_mc$risk, y = df_mc$ret,
+    main = paste("Cenário", sc),
+    xlab = "Risco σ",
+    ylab = "Retorno Exp.",
+    col = "gray80",
+    pch = 20,
+    cex = 0.5
+  )
+  
+  # Fronteira eficiente (linha vermelha)
+  lines(frontier$risk, frontier$ret, col = "red", lwd = 2)
+  
+  # Ponto de Máximo Sharpe (estrela dourada)
+  points(opt_risk, opt_ret, pch = 8, col = "gold", cex = 2, lwd = 2)
+  
+  # Adiciona a legenda apenas no primeiro gráfico para evitar repetição
+  if (i == 1) {
+    legend(
+      "bottomright",
+      legend = c("Simulações", "Fronteira", "Máx Sharpe"),
+      col = c("gray80", "red", "gold"),
+      pch = c(20, NA, 8),
+      lty = c(NA, 1, NA),
+      lwd = 2,
+      bty = "n" # Sem caixa ao redor da legenda
+    )
+  }
+}
+
+# 7) Adiciona o título principal para a figura inteira
+mtext("Fronteiras Eficientes (Monte Carlo) por Cenário", outer = TRUE, cex = 1.5)
+
+```
+
+# Otimização Multi-Objetivo Markowitz via Evolução Diferencial (DE) — Cenário **sim1**
+
+Este bloco implementa um modelo de alocação de portfólio que **minimiza risco** e **maximiza retorno** ao mesmo tempo, usando:
+
+-   **Modelo de Markowitz (Scalarizado)**\
+    $$
+      \min_{w}\;\underbrace{w^\top \Sigma\,w}_{\text{variância (risco)}} \;-\;\gamma\;\max \underbrace{\mu^\top w}_{\text{retorno esperado}}
+    $$ sujeito a\
+    $$
+      \sum_{i=1}^n w_i = 1,\quad w_i \ge w_{\min} \quad(\text{e}\;w_i\le1).
+    $$ Aqui fixamos $\gamma=1$ e $w_{\min}=5\%$.
+
+-   **Evolução Diferencial**\
+    Um algoritmo genético de otimização numérica que explora **populações** de vetores $x\in[0,1]^n$ para encontrar o $w$ ótimo.\
+    A cada iteração, combina vetores, mutaciona, seleciona os melhores segundo a função-objetivo acima.
+
+------------------------------------------------------------------------
+
+## Resultados Esperados
+
+1.  **Pesos ótimos** $w_i$ para cada ativo no cenário `sim1`, respeitando $w_i\ge5\%$ e soma = 100 %.\
+2.  **Métricas do portfólio**:
+    -   Retorno diário esperado\
+    -   Risco diário (desvio-padrão)\
+    -   Índice de Sharpe (com $R_f=0$)\
+3.  **Gráfico interativo** com Plotly mostrando a alocação em barras percentuais.
+
+```{r}
+#| echo: false
+# 1) Instala e carrega as dependências necessárias
+library(readxl)
+library(DEoptim)
+
+# 2) Carrega os retornos simulados do cenário "sim1"
+# O arquivo deve estar no mesmo diretório do script
+xls_path <- "retornos_e_volatilidades.xlsx" 
+if (!file.exists(xls_path)) {
+  stop("Arquivo 'retornos_e_volatilidades.xlsx' não encontrado.")
+}
+df <- as.data.frame(read_excel(xls_path, sheet = "sim1"))
+
+# 3) Extrai e limpa as colunas de retorno
+#   - Filtra colunas que terminam com o sufixo "_ret"
+#   - Renomeia as colunas, removendo o sufixo
+rets <- df[, grepl("_ret$", names(df))]
+names(rets) <- sub("_ret$", "", names(rets))
+#   - Remove colunas com valores NA ou Infinitos
+rets <- rets[, colSums(is.na(rets) | is.infinite(as.matrix(rets))) == 0]
+
+tickers <- names(rets)
+n <- length(tickers)
+
+if (n == 0) {
+  stop("Não foram encontradas colunas de retorno '*_ret' no Excel!")
+}
+
+# 4) Estatísticas de Markowitz (usando funções base do R)
+mu    <- colMeans(rets) # Vetor de retornos médios
+Sigma <- cov(rets)      # Matriz de covariância
+
+# 5) Restrições de peso e parâmetros do otimizador
+min_w <- 0.05          # Mínimo 5% em cada ativo
+scale <- 1 - n * min_w # Parte restante do portfólio para distribuir
+gamma <- 1.0           # Trade-off risco x retorno
+
+# 6) Função objetivo (minimizar σ - γ·R)
+#   - Esta função converte o vetor 'x' do otimizador em pesos de portfólio válidos 'w'
+#   - e retorna o valor a ser minimizado.
+markowitz_obj <- function(x) {
+  raw <- abs(x)
+  if (sum(raw) == 0) {
+    # Evita divisão por zero, usando pesos iguais como fallback
+    raw <- rep(1, length(x)) 
+  }
+  
+  # Converte o vetor 'x' em pesos 'w' que respeitam as restrições
+  w <- min_w + scale * raw / sum(raw)
+  
+  # Calcula o retorno e o risco do portfólio
+  port_ret  <- sum(w * mu)
+  port_risk <- sqrt(t(w) %*% Sigma %*% w)
+  
+  # Retorna o valor a ser minimizado
+  objective_value <- port_risk - gamma * port_ret
+  return(as.numeric(objective_value))
+}
+
+# 7) Bounds (limites) para as variáveis de otimização
+#    O vetor 'x' terá 'n' elementos, cada um variando de 0 a 1.
+lower_bounds <- rep(0, n)
+upper_bounds <- rep(1, n)
+
+# 8) Roda o otimizador de Evolução Diferencial (DE)
+set.seed(42) # Garante a reprodutibilidade
+res <- DEoptim(
+  fn = markowitz_obj,
+  lower = lower_bounds,
+  upper = upper_bounds,
+  control = list(
+    strategy = 2,      # Equivalente a 'best1bin'
+    NP = 15 * n,       # Tamanho da população (popsize). Usar n*15 é mais comum em DE.
+    itermax = 1000,    # Máximo de iterações
+    CR = 0.7,          # Probabilidade de Recombinação
+    F = 0.8,           # Fator de mutação (Python usou (0.5, 1), 0.8 é um valor padrão)
+    reltol = 1e-6      # Tolerância relativa para convergência
+    # Nota: O argumento 'polish=True' do scipy não tem um equivalente direto simples.
+    # Ele executa um otimizador local ao final. Pode ser feito manualmente no R
+    # com a função optim(), mas é omitido aqui para manter a simplicidade.
+  )
+)
+
+# 9) Converte o resultado do otimizador (x) para os pesos finais (w)
+x_opt <- abs(res$optim$bestmem)
+w_opt <- min_w + scale * x_opt / sum(x_opt)
+names(w_opt) <- tickers # Adiciona nomes ao vetor de pesos
+
+# 10) Métricas finais do portfólio otimizado
+port_ret  <- sum(w_opt * mu)
+port_risk <- sqrt(t(w_opt) %*% Sigma %*% w_opt)
+sharpe    <- port_ret / port_risk
+
+# 11) Imprime o resultado formatado
+cat("\n=== Alocação Ótima (Markowitz via DE) — sim1 ===\n\n")
+for (i in 1:n) {
+  cat(sprintf("  %-12s: %6.2f%%\n", tickers[i], w_opt[i] * 100))
+}
+cat(sprintf("\nRetorno Médio Diário: %.4f%%", port_ret * 100))
+cat(sprintf("\nRisco Diário (σ)    : %.4f%%", port_risk * 100))
+cat(sprintf("\nSharpe (Rf=0)       : %.4f\n", sharpe))
+
+
+# 12) Gráfico de barras com o resultado (automático, sem precisar redefinir w_opt)
+
+# Ajusta margem inferior para os nomes dos ativos
+par(mar = c(6, 4, 4, 2) + 0.1)
+
+# Cria o gráfico de barras diretamente com os resultados do otimizador
+bp <- barplot(
+  height = w_opt,
+  names.arg = names(w_opt), # Usa os nomes já atribuídos
+  main = "Alocação Ótima de Ativos — sim1",
+  ylab = "Peso (%)",
+  col = "darkgreen",
+  las = 2,
+  ylim = c(0, max(w_opt) * 1.15)
+)
+
+# Adiciona os rótulos de texto com os valores em %
+text(
+  x = bp,
+  y = w_opt,
+  labels = sprintf("%.2f%%", w_opt * 100),
+  pos = 3,
+  cex = 0.8
+)
+```
+
+## Análise de Performance e Drawdown — Carteira Ótima (sim1)
+
+Na próxima célula faremos:
+
+1.  **Carregamento dos dados**
+    -   Lemos o Excel `retornos_e_volatilidades.xlsx`, aba `sim1`, e extraímos apenas as colunas de retorno `ret_<ativo>`.\
+    -   Montamos um DataFrame `rets` com as séries de retorno diárias dos 22 dias simulados.
+2.  **Aplicação dos pesos ótimos**
+    -   Já tínhamos calculado em uma célula anterior o vetor `w_opt` com os pesos da carteira via Markowitz+DE.\
+    -   Multiplicamos:\
+        $$
+        r^{(p)}_t = \sum_{j} w_j\,r_{t,j},
+        $$ obtendo `port_ret`, a série de retorno diário da carteira.
+3.  **Cálculo da performance cumulativa**
+    -   Normalizamos o capital inicial para 1:\
+        $$
+          W_0 = 1,\quad
+          W_t = \prod_{i=1}^t (1 + r^{(p)}_i).
+        $$
+    -   Resultado em `wealth`, índice de riqueza ao longo dos 22 dias.
+4.  **Cálculo do drawdown**
+    -   Definimos o “pico até hoje”: $$
+        \displaystyle \text{peak}_t = \max_{s \le t} W_s.
+        $$\
+
+    -   Drawdown diário:
+
+        $$
+         \text{DD}_t = \frac{W_t - \text{peak}_t}{\text{peak}_t}.
+        $$
+
+    -   Identificamos o **drawdown máximo** como o menor valor de `DD_t`.
+5.  **Visualização Interativa**
+    -   Utilizamos **Plotly** com `make_subplots` para criar dois painéis:
+        -   **Superior:** curva de `wealth` ao longo do prazo.
+        -   **Inferior:** área preenchida do `drawdown`, realçando quedas percentuais.
+    -   O gráfico mostra de forma clara:
+        -   O **crescimento** acumulado da carteira.
+        -   O **maior recuo** percentual sofrido.
+
+------------------------------------------------------------------------
+
+**Por que é útil?**\
+- Permite ao decisor ver tanto o **ganho potencial** quanto o **risco de queda** em curto prazo.\
+- Dá transparência sobre *quando* e *quanto* a carteira pode retroceder antes de recuperar ganhos.\
+- Serve de base para avaliar se o portfólio atende à tolerância ao risco na janela de 22 dias.
+
+```{r}
+library(readxl)
+library(dplyr)
+library(plotly)
+
+# 1) Lê o Excel e já trata a primeira coluna como data
+df <- read_excel("retornos_e_volatilidades.xlsx", sheet = "sim1")
+
+# 2) Detecta e extrai a coluna de datas (assume que está na primeira coluna)
+data_col <- df[[1]]
+if (!inherits(data_col, "Date")) {
+  data_col <- as.Date(data_col)
+}
+df <- df[, -1] # Remove a coluna de datas da tabela principal
+
+# 3) Extrai e renomeia colunas de retorno
+rets <- df %>%
+  select(ends_with("_ret")) %>%
+  rename_with(~ gsub("_ret$", "", .x)) %>%
+  mutate_all(as.numeric) %>%
+  select(where(~ all(is.finite(.x))))
+
+
+# 5) Calcula retorno da carteira
+rets_xts <- as.data.frame(rets)
+port_ret <- as.numeric(as.matrix(rets_xts) %*% w_opt[colnames(rets_xts)])
+
+# 6) Calcula índice de riqueza e drawdown
+wealth <- cumprod(1 + port_ret)
+running_max <- cummax(wealth)
+drawdown <- (wealth - running_max) / running_max
+max_dd <- min(drawdown)
+
+# 7) Cria o dataframe final com datas corretamente
+plot_df <- data.frame(
+  Date = data_col,
+  Wealth = wealth,
+  Drawdown = drawdown
+)
+
+
+# === GRÁFICO 1: Performance Cumulativa ===
+fig1 <- plot_ly(
+  plot_df, x = ~Date, y = ~Wealth, type = 'scatter', mode = 'lines',
+  name = 'Wealth Index'
+) %>%
+  layout(
+    title = "Performance Cumulativa da Carteira Ótima (sim1)",
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Índice de Riqueza")
+  )
+
+# === GRÁFICO 2: Drawdown ===
+fig2 <- plot_ly(
+  plot_df, x = ~Date, y = ~Drawdown, type = 'scatter', mode = 'lines',
+  name = 'Drawdown', fill = 'tozeroy', line = list(color = 'crimson')
+) %>%
+  layout(
+    title = sprintf("Drawdown Diário (Máx: %.2f%%)", 100 * max_dd),
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Drawdown", tickformat = ".0%")
+  )
+
+# 8) Exibe os gráficos separadamente
+fig1
+fig2
+```
+
+## Interpretação Objetiva — Carteira Ótima (sim1)
+
+-   **Retorno total:** +1,50 % em 22 dias\
+-   **Retorno médio diário:** ≈ 0,065 %\
+-   **Pico histórico:** +2,70 % no meio do período\
+-   **Drawdown máximo:** –1,33 %\
+-   **Relação Drawdown/Retorno:** 1,33 % / 1,50 % ≈ 0,89
+
+**Conclusão rápida:**\
+A carteira gerou lucro consistente de cerca de 1,5 % com queda máxima limitada a 1,33 %, indicando um trade‐off risco/retorno favorável num horizonte curto.
+
+#SIM 2
+
+```{r}
+#| echo: false
+# 1) Instala e carrega as dependências necessárias
+library(readxl)
+library(DEoptim)
+
+# 2) Carrega os retornos simulados do cenário "sim1"
+# O arquivo deve estar no mesmo diretório do script
+xls_path <- "retornos_e_volatilidades.xlsx" 
+if (!file.exists(xls_path)) {
+  stop("Arquivo 'retornos_e_volatilidades.xlsx' não encontrado.")
+}
+df <- as.data.frame(read_excel(xls_path, sheet = "sim2"))
+
+# 3) Extrai e limpa as colunas de retorno
+#   - Filtra colunas que terminam com o sufixo "_ret"
+#   - Renomeia as colunas, removendo o sufixo
+rets <- df[, grepl("_ret$", names(df))]
+names(rets) <- sub("_ret$", "", names(rets))
+#   - Remove colunas com valores NA ou Infinitos
+rets <- rets[, colSums(is.na(rets) | is.infinite(as.matrix(rets))) == 0]
+
+tickers <- names(rets)
+n <- length(tickers)
+
+if (n == 0) {
+  stop("Não foram encontradas colunas de retorno '*_ret' no Excel!")
+}
+
+# 4) Estatísticas de Markowitz (usando funções base do R)
+mu    <- colMeans(rets) # Vetor de retornos médios
+Sigma <- cov(rets)      # Matriz de covariância
+
+# 5) Restrições de peso e parâmetros do otimizador
+min_w <- 0.05          # Mínimo 5% em cada ativo
+scale <- 1 - n * min_w # Parte restante do portfólio para distribuir
+gamma <- 1.0           # Trade-off risco x retorno
+
+# 6) Função objetivo (minimizar σ - γ·R)
+#   - Esta função converte o vetor 'x' do otimizador em pesos de portfólio válidos 'w'
+#   - e retorna o valor a ser minimizado.
+markowitz_obj <- function(x) {
+  raw <- abs(x)
+  if (sum(raw) == 0) {
+    # Evita divisão por zero, usando pesos iguais como fallback
+    raw <- rep(1, length(x)) 
+  }
+  
+  # Converte o vetor 'x' em pesos 'w' que respeitam as restrições
+  w <- min_w + scale * raw / sum(raw)
+  
+  # Calcula o retorno e o risco do portfólio
+  port_ret  <- sum(w * mu)
+  port_risk <- sqrt(t(w) %*% Sigma %*% w)
+  
+  # Retorna o valor a ser minimizado
+  objective_value <- port_risk - gamma * port_ret
+  return(as.numeric(objective_value))
+}
+
+# 7) Bounds (limites) para as variáveis de otimização
+#    O vetor 'x' terá 'n' elementos, cada um variando de 0 a 1.
+lower_bounds <- rep(0, n)
+upper_bounds <- rep(1, n)
+
+# 8) Roda o otimizador de Evolução Diferencial (DE)
+set.seed(42) # Garante a reprodutibilidade
+res <- DEoptim(
+  fn = markowitz_obj,
+  lower = lower_bounds,
+  upper = upper_bounds,
+  control = list(
+    strategy = 2,      # Equivalente a 'best1bin'
+    NP = 15 * n,       # Tamanho da população (popsize). Usar n*15 é mais comum em DE.
+    itermax = 1000,    # Máximo de iterações
+    CR = 0.7,          # Probabilidade de Recombinação
+    F = 0.8,           # Fator de mutação (Python usou (0.5, 1), 0.8 é um valor padrão)
+    reltol = 1e-6      # Tolerância relativa para convergência
+    # Nota: O argumento 'polish=True' do scipy não tem um equivalente direto simples.
+    # Ele executa um otimizador local ao final. Pode ser feito manualmente no R
+    # com a função optim(), mas é omitido aqui para manter a simplicidade.
+  )
+)
+
+# 9) Converte o resultado do otimizador (x) para os pesos finais (w)
+x_opt <- abs(res$optim$bestmem)
+w_opt <- min_w + scale * x_opt / sum(x_opt)
+names(w_opt) <- tickers # Adiciona nomes ao vetor de pesos
+
+# 10) Métricas finais do portfólio otimizado
+port_ret  <- sum(w_opt * mu)
+port_risk <- sqrt(t(w_opt) %*% Sigma %*% w_opt)
+sharpe    <- port_ret / port_risk
+
+# 11) Imprime o resultado formatado
+cat("\n=== Alocação Ótima (Markowitz via DE) — sim1 ===\n\n")
+for (i in 1:n) {
+  cat(sprintf("  %-12s: %6.2f%%\n", tickers[i], w_opt[i] * 100))
+}
+cat(sprintf("\nRetorno Médio Diário: %.4f%%", port_ret * 100))
+cat(sprintf("\nRisco Diário (σ)    : %.4f%%", port_risk * 100))
+cat(sprintf("\nSharpe (Rf=0)       : %.4f\n", sharpe))
+
+
+# 12) Gráfico de barras com o resultado (automático, sem precisar redefinir w_opt)
+
+# Ajusta margem inferior para os nomes dos ativos
+par(mar = c(6, 4, 4, 2) + 0.1)
+
+# Cria o gráfico de barras diretamente com os resultados do otimizador
+bp <- barplot(
+  height = w_opt,
+  names.arg = names(w_opt), # Usa os nomes já atribuídos
+  main = "Alocação Ótima de Ativos — sim2",
+  ylab = "Peso (%)",
+  col = "darkgreen",
+  las = 2,
+  ylim = c(0, max(w_opt) * 1.15)
+)
+
+# Adiciona os rótulos de texto com os valores em %
+text(
+  x = bp,
+  y = w_opt,
+  labels = sprintf("%.2f%%", w_opt * 100),
+  pos = 3,
+  cex = 0.8
+)
+```
+
+```{r}
+#| echo: false
+library(readxl)
+library(dplyr)
+library(plotly)
+
+# 1) Lê o Excel e já trata a primeira coluna como data
+df <- read_excel("retornos_e_volatilidades.xlsx", sheet = "sim2")
+
+# 2) Detecta e extrai a coluna de datas (assume que está na primeira coluna)
+data_col <- df[[1]]
+if (!inherits(data_col, "Date")) {
+  data_col <- as.Date(data_col)
+}
+df <- df[, -1] # Remove a coluna de datas da tabela principal
+
+# 3) Extrai e renomeia colunas de retorno
+rets <- df %>%
+  select(ends_with("_ret")) %>%
+  rename_with(~ gsub("_ret$", "", .x)) %>%
+  mutate_all(as.numeric) %>%
+  select(where(~ all(is.finite(.x))))
+
+
+# 5) Calcula retorno da carteira
+rets_xts <- as.data.frame(rets)
+port_ret <- as.numeric(as.matrix(rets_xts) %*% w_opt[colnames(rets_xts)])
+
+# 6) Calcula índice de riqueza e drawdown
+wealth <- cumprod(1 + port_ret)
+running_max <- cummax(wealth)
+drawdown <- (wealth - running_max) / running_max
+max_dd <- min(drawdown)
+
+# 7) Cria o dataframe final com datas corretamente
+plot_df <- data.frame(
+  Date = data_col,
+  Wealth = wealth,
+  Drawdown = drawdown
+)
+
+# === GRÁFICO 1: Performance Cumulativa ===
+fig1 <- plot_ly(
+  plot_df, x = ~Date, y = ~Wealth, type = 'scatter', mode = 'lines',
+  name = 'Wealth Index'
+) %>%
+  layout(
+    title = "Performance Cumulativa da Carteira Ótima (sim2)",
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Índice de Riqueza")
+  )
+
+# === GRÁFICO 2: Drawdown ===
+fig2 <- plot_ly(
+  plot_df, x = ~Date, y = ~Drawdown, type = 'scatter', mode = 'lines',
+  name = 'Drawdown', fill = 'tozeroy', line = list(color = 'crimson')
+) %>%
+  layout(
+    title = sprintf("Drawdown Diário (Máx: %.2f%%)", 100 * max_dd),
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Drawdown", tickformat = ".0%")
+  )
+
+# 8) Exibe os gráficos separadamente
+fig1
+fig2
+```
+
+```{r}
+#| echo: false
+# 1) Instala e carrega as dependências necessárias
+library(readxl)
+library(DEoptim)
+
+# 2) Carrega os retornos simulados do cenário "sim1"
+# O arquivo deve estar no mesmo diretório do script
+xls_path <- "retornos_e_volatilidades.xlsx" 
+if (!file.exists(xls_path)) {
+  stop("Arquivo 'retornos_e_volatilidades.xlsx' não encontrado.")
+}
+df <- as.data.frame(read_excel(xls_path, sheet = "sim3"))
+
+# 3) Extrai e limpa as colunas de retorno
+#   - Filtra colunas que terminam com o sufixo "_ret"
+#   - Renomeia as colunas, removendo o sufixo
+rets <- df[, grepl("_ret$", names(df))]
+names(rets) <- sub("_ret$", "", names(rets))
+#   - Remove colunas com valores NA ou Infinitos
+rets <- rets[, colSums(is.na(rets) | is.infinite(as.matrix(rets))) == 0]
+
+tickers <- names(rets)
+n <- length(tickers)
+
+if (n == 0) {
+  stop("Não foram encontradas colunas de retorno '*_ret' no Excel!")
+}
+
+# 4) Estatísticas de Markowitz (usando funções base do R)
+mu    <- colMeans(rets) # Vetor de retornos médios
+Sigma <- cov(rets)      # Matriz de covariância
+
+# 5) Restrições de peso e parâmetros do otimizador
+min_w <- 0.05          # Mínimo 5% em cada ativo
+scale <- 1 - n * min_w # Parte restante do portfólio para distribuir
+gamma <- 1.0           # Trade-off risco x retorno
+
+# 6) Função objetivo (minimizar σ - γ·R)
+#   - Esta função converte o vetor 'x' do otimizador em pesos de portfólio válidos 'w'
+#   - e retorna o valor a ser minimizado.
+markowitz_obj <- function(x) {
+  raw <- abs(x)
+  if (sum(raw) == 0) {
+    # Evita divisão por zero, usando pesos iguais como fallback
+    raw <- rep(1, length(x)) 
+  }
+  
+  # Converte o vetor 'x' em pesos 'w' que respeitam as restrições
+  w <- min_w + scale * raw / sum(raw)
+  
+  # Calcula o retorno e o risco do portfólio
+  port_ret  <- sum(w * mu)
+  port_risk <- sqrt(t(w) %*% Sigma %*% w)
+  
+  # Retorna o valor a ser minimizado
+  objective_value <- port_risk - gamma * port_ret
+  return(as.numeric(objective_value))
+}
+
+# 7) Bounds (limites) para as variáveis de otimização
+#    O vetor 'x' terá 'n' elementos, cada um variando de 0 a 1.
+lower_bounds <- rep(0, n)
+upper_bounds <- rep(1, n)
+
+# 8) Roda o otimizador de Evolução Diferencial (DE)
+set.seed(42) # Garante a reprodutibilidade
+res <- DEoptim(
+  fn = markowitz_obj,
+  lower = lower_bounds,
+  upper = upper_bounds,
+  control = list(
+    strategy = 2,      # Equivalente a 'best1bin'
+    NP = 15 * n,       # Tamanho da população (popsize). Usar n*15 é mais comum em DE.
+    itermax = 1000,    # Máximo de iterações
+    CR = 0.7,          # Probabilidade de Recombinação
+    F = 0.8,           # Fator de mutação (Python usou (0.5, 1), 0.8 é um valor padrão)
+    reltol = 1e-6      # Tolerância relativa para convergência
+    # Nota: O argumento 'polish=True' do scipy não tem um equivalente direto simples.
+    # Ele executa um otimizador local ao final. Pode ser feito manualmente no R
+    # com a função optim(), mas é omitido aqui para manter a simplicidade.
+  )
+)
+
+# 9) Converte o resultado do otimizador (x) para os pesos finais (w)
+x_opt <- abs(res$optim$bestmem)
+w_opt <- min_w + scale * x_opt / sum(x_opt)
+names(w_opt) <- tickers # Adiciona nomes ao vetor de pesos
+
+# 10) Métricas finais do portfólio otimizado
+port_ret  <- sum(w_opt * mu)
+port_risk <- sqrt(t(w_opt) %*% Sigma %*% w_opt)
+sharpe    <- port_ret / port_risk
+
+# 11) Imprime o resultado formatado
+cat("\n=== Alocação Ótima (Markowitz via DE) — sim3 ===\n\n")
+for (i in 1:n) {
+  cat(sprintf("  %-12s: %6.2f%%\n", tickers[i], w_opt[i] * 100))
+}
+cat(sprintf("\nRetorno Médio Diário: %.4f%%", port_ret * 100))
+cat(sprintf("\nRisco Diário (σ)    : %.4f%%", port_risk * 100))
+cat(sprintf("\nSharpe (Rf=0)       : %.4f\n", sharpe))
+
+
+# 12) Gráfico de barras com o resultado (automático, sem precisar redefinir w_opt)
+
+# Ajusta margem inferior para os nomes dos ativos
+par(mar = c(6, 4, 4, 2) + 0.1)
+
+# Cria o gráfico de barras diretamente com os resultados do otimizador
+bp <- barplot(
+  height = w_opt,
+  names.arg = names(w_opt), # Usa os nomes já atribuídos
+  main = "Alocação Ótima de Ativos — sim3",
+  ylab = "Peso (%)",
+  col = "darkgreen",
+  las = 2,
+  ylim = c(0, max(w_opt) * 1.15)
+)
+
+# Adiciona os rótulos de texto com os valores em %
+text(
+  x = bp,
+  y = w_opt,
+  labels = sprintf("%.2f%%", w_opt * 100),
+  pos = 3,
+  cex = 0.8
+)
+```
+
+```{r}
+#| echo: false
+library(readxl)
+library(dplyr)
+library(plotly)
+
+# 1) Lê o Excel e já trata a primeira coluna como data
+df <- read_excel("retornos_e_volatilidades.xlsx", sheet = "sim3")
+
+# 2) Detecta e extrai a coluna de datas (assume que está na primeira coluna)
+data_col <- df[[1]]
+if (!inherits(data_col, "Date")) {
+  data_col <- as.Date(data_col)
+}
+df <- df[, -1] # Remove a coluna de datas da tabela principal
+
+# 3) Extrai e renomeia colunas de retorno
+rets <- df %>%
+  select(ends_with("_ret")) %>%
+  rename_with(~ gsub("_ret$", "", .x)) %>%
+  mutate_all(as.numeric) %>%
+  select(where(~ all(is.finite(.x))))
+
+
+# 5) Calcula retorno da carteira
+rets_xts <- as.data.frame(rets)
+port_ret <- as.numeric(as.matrix(rets_xts) %*% w_opt[colnames(rets_xts)])
+
+# 6) Calcula índice de riqueza e drawdown
+wealth <- cumprod(1 + port_ret)
+running_max <- cummax(wealth)
+drawdown <- (wealth - running_max) / running_max
+max_dd <- min(drawdown)
+
+# 7) Cria o dataframe final com datas corretamente
+plot_df <- data.frame(
+  Date = data_col,
+  Wealth = wealth,
+  Drawdown = drawdown
+)
+
+# === GRÁFICO 1: Performance Cumulativa ===
+fig1 <- plot_ly(
+  plot_df, x = ~Date, y = ~Wealth, type = 'scatter', mode = 'lines',
+  name = 'Wealth Index'
+) %>%
+  layout(
+    title = "Performance Cumulativa da Carteira Ótima (sim3)",
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Índice de Riqueza")
+  )
+
+# === GRÁFICO 2: Drawdown ===
+fig2 <- plot_ly(
+  plot_df, x = ~Date, y = ~Drawdown, type = 'scatter', mode = 'lines',
+  name = 'Drawdown', fill = 'tozeroy', line = list(color = 'crimson')
+) %>%
+  layout(
+    title = sprintf("Drawdown Diário (Máx: %.2f%%)", 100 * max_dd),
+    xaxis = list(title = "Data"),
+    yaxis = list(title = "Drawdown", tickformat = ".0%")
+  )
+
+# 8) Exibe os gráficos separadamente
+fig1
+fig2
+```
