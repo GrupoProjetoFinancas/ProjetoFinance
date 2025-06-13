@@ -1,5 +1,5 @@
 ---
-title: "O que este notebook oferece ao decisor"
+title: "Análise Bi Objetivo "
 format:
   html:
     self-contained: true
@@ -36,6 +36,7 @@ format:
 conduzindo a decisões de investimento mais embasadas e transparentes.
 
 ```{r}
+#| include: false
 
 start_time <- Sys.time()
 
@@ -73,6 +74,7 @@ library(openxlsx)
 ```
 
 ```{r}
+#| include: false
 
 # 1) Parâmetros
 tickers    <- c(
@@ -162,6 +164,7 @@ ret_all <- ret_all %>%
 ```
 
 ```{r}
+#| echo: false
 
 # 8) Visualizações
 
@@ -181,6 +184,7 @@ ggplot(ret_all, aes(x = date, y = ret, color = .rep, linetype = .rep)) +
 ```
 
 ```{r}
+#| echo: false
 
 # 8.2) Volatilidade móvel
 ggplot(ret_all, aes(x = date, y = vol, color = .rep, linetype = .rep)) +
@@ -198,6 +202,7 @@ ggplot(ret_all, aes(x = date, y = vol, color = .rep, linetype = .rep)) +
 ```
 
 ```{r}
+#| include: false
 
 
 library(tidyverse)
@@ -296,6 +301,7 @@ O gráfico é interativo: dá zoom, mostra tooltip com valores etc.
 ------------------------------------------------------------------------
 
 ```{r}
+#| echo: false
 
 # 1) Carrega a única biblioteca necessária para ler Excel
 # install.packages("readxl") # Descomente para instalar, se necessário
@@ -609,6 +615,7 @@ Na próxima célula faremos:
 - Serve de base para avaliar se o portfólio atende à tolerância ao risco na janela de 22 dias.
 
 ```{r}
+#| echo: false
 library(readxl)
 library(dplyr)
 library(plotly)
@@ -687,7 +694,7 @@ fig2
 **Conclusão rápida:**\
 A carteira gerou lucro consistente de cerca de 1,5 % com queda máxima limitada a 1,33 %, indicando um trade‐off risco/retorno favorável num horizonte curto.
 
-#SIM 2
+# Simulação Cenário 2 
 
 ```{r}
 #| echo: false
@@ -784,7 +791,7 @@ port_risk <- sqrt(t(w_opt) %*% Sigma %*% w_opt)
 sharpe    <- port_ret / port_risk
 
 # 11) Imprime o resultado formatado
-cat("\n=== Alocação Ótima (Markowitz via DE) — sim1 ===\n\n")
+cat("\n=== Alocação Ótima (Markowitz via DE) — sim2 ===\n\n")
 for (i in 1:n) {
   cat(sprintf("  %-12s: %6.2f%%\n", tickers[i], w_opt[i] * 100))
 }
@@ -817,7 +824,11 @@ text(
   pos = 3,
   cex = 0.8
 )
+
+
 ```
+
+## Análise de Performance e Drawdown — Carteira Ótima (sim2)
 
 ```{r}
 #| echo: false
@@ -886,6 +897,8 @@ fig2 <- plot_ly(
 fig1
 fig2
 ```
+
+# Simulação Cenário 3
 
 ```{r}
 #| echo: false
@@ -1016,6 +1029,8 @@ text(
   cex = 0.8
 )
 ```
+
+## Análise de Performance e Drawdown — Carteira Ótima (sim3)
 
 ```{r}
 #| echo: false
