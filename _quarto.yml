@@ -19,6 +19,8 @@ website:
         text: Forecast de Retornos
       - href: Fuzzy Topsis Análise.qmd
         text: Análise Fuzzy TOPSIS
+      - href: RLForecast.qmd
+        text: Agente e simulações para Compra e Venda
       - href: RiskxReturn.qmd
         text: Risco vs Retorno Bi Objetivo
       

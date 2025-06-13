@@ -1,0 +1,587 @@
+---
+title: Reinforcement Learning Trading Strategy para Commodities Agrícolas
+---
+
+Este notebook adapta o estudo de caso original de Reinforcement Learning para trading, usando yahooquery para ingestão de dados e aplicando a estratégia aos tickers de commodities agrícolas.
+
+**Análise Entregue:**
+
+-   Para cada ticker, calcula o lucro total acumulado em cada episódio de treinamento.
+
+-   Gera um vetor results\[ticker\] com o lucro por episódio.
+
+-   Plota a evolução do lucro total ao longo dos episódios, permitindo comparar a performance entre commodities.
+
+```{r}
+# Instalar os pacotes necessários
+packages <- c("quantmod", "torch", "gym", "reticulate", "dplyr", "ggplot2", "tibble", "tidyr")
+
+installed <- packages %in% rownames(installed.packages())
+if (any(!installed)) {
+  install.packages(packages[!installed])
+}
+
+# Torch requer instalação especial
+if (!torch::torch_is_installed()) {
+  torch::install_torch()
+}
+```
+
+```{r}
+#@title Python lib imports
+
+library(torch)
+library(quantmod)     # Para obter dados financeiros (substitui yfinance/yahooquery)
+library(gym)          # Alternativa para ambientes RL (pode ser personalizado)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+```
+
+Definimos os tickers de commodities agrícolas e implementamos a função `fetch_close_prices` para recuperar preços de fechamento.
+
+```{r}
+
+# Instale os pacotes se necessário:
+install.packages(c("quantmod", "dplyr"))
+
+suppressPackageStartupMessages({
+library(quantmod)
+library(dplyr)
+})
+
+fetch_close_prices_qm <- function(tickers, start, end, cache_path = "prices_qm.csv") {
+  # Se já existe CSV em cache, carrega e retorna
+  if (file.exists(cache_path)) {
+    df <- read.csv(cache_path, stringsAsFactors = FALSE) %>%
+      mutate(date = as.Date(date))
+    message("Loaded from cache: ", cache_path)
+    return(df)
+  }
+
+  # Senão, faz o download para cada ticker
+  all_data <- lapply(tickers, function(tk) {
+    # getSymbols retorna um objeto xts com colunas Open, High, Low, Close, Volume, Adjusted
+    xts_data <- getSymbols(tk, src = "yahoo", from = start, to = end, auto.assign = FALSE)
+    close_prices <- Ad(xts_data)  # usa Preço Ajustado (Adjusted Close)
+    data.frame(
+      date   = index(close_prices),
+      ticker = tk,
+      close  = as.numeric(close_prices),
+      row.names = NULL
+    )
+  })
+
+  # Combina tudo em um data.frame
+  df <- bind_rows(all_data)
+
+  # Salva em CSV para próximas execuções
+  write.csv(df, cache_path, row.names = FALSE)
+  message("Saved to cache: ", cache_path)
+
+  return(df)
+}
+
+# Exemplo de uso:
+tickers    <- c("SAP","CRM","IBM","NOW","ORCL","MSFT")
+start_date <- "2020-01-01"
+end_date   <- "2025-05-01"
+
+df_prices <- fetch_close_prices_qm(tickers, start_date, end_date)
+tail(df_prices)
+```
+
+```{r}
+
+# Leitura do CSV com parsing da coluna de data
+df_prices <- read.csv("prices_qm.csv", stringsAsFactors = FALSE)
+
+# Converter a coluna "date" para formato Date
+df_prices$date <- as.Date(df_prices$date)
+
+# Visualizar as últimas linhas
+tail(df_prices)
+
+```
+
+## Preparação do Estado (getState)
+
+Implementamos a função que transforma uma janela de preços em um vetor de retornos normalizados.
+
+```{r}
+getState <- function(data, t, window_size) {
+  d <- t - window_size + 1
+  
+  if (d >= 1) {
+    block <- data[d:t]
+  } else {
+    faltam <- 1 - d
+    block <- c(rep(data[1], times = faltam), data[1:t])
+  }
+  
+  retornos <- diff(block) / head(block, -1)
+  return(retornos)
+}
+```
+
+## Definição do Agente de RL
+
+Definição do Agente de RL com Q-Learning Estável
+
+```{r}
+
+# 2. Classe do Agente com Torch
+DQNAgent <- nn_module(
+  "DQNAgent",
+  
+  initialize = function(state_size, 
+                       hidden_size = 64, 
+                       lr = 1e-4,
+                       gamma = 0.95,
+                       epsilon = 1.0,
+                       epsilon_min = 0.01,
+                       epsilon_decay = 0.995) {
+    
+    self$gamma <- gamma
+    self$epsilon <- epsilon
+    self$epsilon_min <- epsilon_min
+    self$epsilon_decay <- epsilon_decay
+    
+    # Rede neural
+    self$model <- nn_sequential(
+      nn_linear(state_size, hidden_size),
+      nn_relu(),
+      nn_linear(hidden_size, 3)  # 3 ações: HOLD, BUY, SELL
+    )
+    
+    # Otimizador
+    self$optimizer <- optim_adam(self$model$parameters, lr = lr)
+  },
+  
+  act = function(state) {
+    if (runif(1) < self$epsilon) {
+      sample(0:2, 1)  # Ação aleatória
+    } else {
+      # Converter estado para tensor
+      state_tensor <- torch_tensor(state, dtype = torch_float32())$unsqueeze(1)
+      
+      # Forward pass
+      q_values <- self$model(state_tensor)
+      
+      # Extrair valores e escolher ação
+      as.integer(torch_argmax(q_values, dim = 2)$item() - 1)  # Ajuste para base 0
+    }
+  },
+  
+  train_step = function(state, action, reward, next_state, done) {
+    # Converter para tensores
+    state_tensor <- torch_tensor(state, dtype = torch_float32())$unsqueeze(1)
+    next_state_tensor <- torch_tensor(next_state, dtype = torch_float32())$unsqueeze(1)
+    
+    # Forward pass
+    q_values <- self$model(state_tensor)
+    
+    # Calcular Q-target
+    with_no_grad({
+      q_next <- self$model(next_state_tensor)
+      max_q_next <- torch_max(q_next)$item()
+      
+      # Atualizar apenas a ação executada
+      target <- as.numeric(q_values)
+      if (done) {
+        target[action + 1] <- reward
+      } else {
+        target[action + 1] <- reward + self$gamma * max_q_next
+      }
+    })
+    
+    # Calcular perda
+    target_tensor <- torch_tensor(matrix(target, nrow = 1), dtype = torch_float32())
+    loss <- nnf_mse_loss(q_values, target_tensor)
+    
+    # Backpropagation
+    self$optimizer$zero_grad()
+    loss$backward()
+    self$optimizer$step()
+    
+    # Decaimento do epsilon
+    if (self$epsilon > self$epsilon_min) {
+      self$epsilon <- self$epsilon * self$epsilon_decay
+    }
+    
+    # Retornar perda para monitoramento
+    loss$item()
+  }
+)
+
+```
+
+## Loop de Treinamento e Avaliação
+
+Treinamos o agente por vários episódios para cada ticker, armazenando o lucro total de cada episódio.
+
+```{r}
+#| echo: false
+# 3. Função alternativa para carregar dados
+load_price_data <- function(file_path) {
+  # Verificar se arquivo existe
+  if (!file.exists(file_path)) {
+    stop("Arquivo de dados não encontrado: ", file_path)
+  }
+  
+  # Tentar ler com readr
+  if (requireNamespace("readr", quietly = TRUE)) {
+    return(readr::read_csv(file_path))
+  }
+  
+  # Se readr não disponível, usar base R
+  data <- read.csv(file_path, stringsAsFactors = FALSE)
+  if ("date" %in% colnames(data)) {
+    data$date <- as.Date(data$date)
+  }
+  return(data)
+}
+# 4. Loop principal de treinamento
+window_size <- 10
+episodes <- 50
+results <- list()
+tickers <- c("SAP", "CRM", "IBM", "NOW", "ORCL", "MSFT")
+file_path <- "prices_qm.csv"
+
+# Carregar dados
+df_prices <- load_price_data(file_path)
+
+# Verificar estrutura dos dados
+if (!"ticker" %in% colnames(df_prices)) stop("Coluna 'ticker' não encontrada")
+if (!"close" %in% colnames(df_prices)) stop("Coluna 'close' não encontrada")
+if (!"date" %in% colnames(df_prices)) stop("Coluna 'date' não encontrada")
+
+for (tk in tickers) {
+  cat("\n=== Treinando para", tk, "===\n")
+  
+  # Preparar série de preços
+  prices <- df_prices %>%
+    filter(ticker == tk) %>%
+    arrange(date) %>%
+    pull(close) %>%
+    as.numeric()
+  
+  # Verificar dados
+  if (length(prices) < window_size + 1) {
+    warning(tk, ": Dados insuficientes (", length(prices), " pontos). Pulando...")
+    next
+  }
+  
+  # Inicializar agente
+  agent <- DQNAgent(state_size = window_size)
+  total_profits <- numeric(episodes)
+  loss_history <- list()
+  
+  for (e in 1:episodes) {
+    # Obter estado inicial
+    state <- getState(prices, window_size, window_size + 1)
+    inventory <- numeric(0)
+    total_profit <- 0
+    episode_losses <- numeric(0)
+    
+    # Loop por toda a série temporal
+    for (t in window_size:(length(prices) - 1)) {
+      action <- agent$act(state)
+      next_state <- getState(prices, t + 1, window_size + 1)
+      reward <- 0
+      done <- (t == length(prices) - 1)
+      
+      # Executar ação
+      if (action == 1) {  # BUY
+        inventory <- c(inventory, prices[t])
+      } else if (action == 2 && length(inventory) > 0) {  # SELL
+        bought_price <- inventory[1]
+        inventory <- inventory[-1]
+        profit <- prices[t] - bought_price
+        reward <- profit / bought_price
+        total_profit <- total_profit + profit
+      }
+      
+      # Treinar agente (apenas se o estado for válido)
+      if (length(state) == window_size && length(next_state) == window_size) {
+        loss <- agent$train_step(state, action, reward, next_state, done)
+        episode_losses <- c(episode_losses, loss)
+      }
+      
+      state <- next_state
+    }
+    
+    total_profits[e] <- total_profit
+    
+    if (e %% 10 == 0) {
+      avg_loss <- ifelse(length(episode_losses) > 0, mean(episode_losses), 0)
+      cat(sprintf("Episódio %d/%d — Lucro: R$%.2f | Perda: %.4f | ε: %.4f\n", 
+                 e, episodes, total_profit, avg_loss, agent$epsilon))
+    }
+  }
+  
+  results[[tk]] <- total_profits
+  
+  # Plotar resultados
+  plot_data <- data.frame(
+    Episódio = 1:episodes,
+    Lucro = total_profits
+  )
+  
+  print(
+    ggplot(plot_data, aes(x = Episódio, y = Lucro)) +
+      geom_line(color = "steelblue") +
+      geom_point(color = "darkblue") +
+      labs(title = paste("Desempenho do Agente -", tk),
+           y = "Lucro Total (R$)", x = "Episódio") +
+      theme_minimal()
+  )
+}
+  
+
+```
+
+## Interpretação Atualizada dos Resultados
+
+O gráfico mostra resultados moderados, sem picos extremos, indicando que o agente está **aprendendo de forma mais estável**, porém ainda com bastante ruído. Veja como entender cada padrão:
+
+------------------------------------------------------------------------
+
+### 1. Episódio inicial com lucro elevado (ZC=F)
+
+-   No episódio 0, o ticker **ZC=F** obteve um lucro alto (\~6000 USD) devido a uma sequência de compras e vendas que coincidiram com movimentos de preço no início do treinamento.
+-   Esse valor atípico provavelmente reflete **ações exploratórias** intensas com ε próximo a 1.
+
+------------------------------------------------------------------------
+
+### 2. Convergência para lucros moderados
+
+-   A partir do episódio 1 em diante, todos os tickers **flutuam ao redor de zero** com ganhos e perdas moderados (\<±2000 USD).
+-   Isso sugere que o agente já **reduziu a exploração** (ε decaído) e começa a “assentar” sua política em padrões menos arriscados.
+
+------------------------------------------------------------------------
+
+### 3. Ruído persistente
+
+-   Apesar da convergência inicial, ainda há **oscilações**:
+    -   Alguns episódios geram ganhos pontuais (ex.: ZS=F nos episódios \~5 e \~8).\
+    -   Outros produzem perdas ligeiras (ex.: KE=F no episódio \~25).\
+-   Esse **ruído** pode indicar que o agente não encontrou padrão suficientemente forte, ou que a rede está subajustada (underfitting).
+
+------------------------------------------------------------------------
+
+### 4. Ausência de tendência crescente
+
+-   **Não há uma curva claramente ascendente** ao longo dos episódios.\
+-   Em um cenário de aprendizado ideal, o lucro médio por episódio tenderia a crescer de forma suave — aqui, isso não ocorre.
+
+------------------------------------------------------------------------
+
+### 5. Próximos ajustes recomendados
+
+1.  **Diminuir ainda mais ε** após os episódios iniciais para focar na exploração das melhores ações aprendidas.\
+2.  **Aumentar a complexidade da rede** (camadas/neuronios) para capturar padrões mais sutis.\
+3.  **Implementar Replay Buffer** e **Target Network** para reduzir o ruído e estabilizar o Q-learning.\
+4.  **Ajustar funções de recompensa** (ex.: penalizar holding prolongado) para incentivar decisões mais decisivas.
+
+Com essas observações, você poderá direcionar esforços para estabilizar o aprendizado e extrair sinais de trading mais confiáveis.
+
+# Extração de Sinais de Compra e Venda
+
+Para transformar a política aprendida em sinais de compra e venda, podemos usar o agente treinado (com ε reduzido) para gerar um histórico de ações em um episódio “simulado”. Exemplo para um ticker tk:
+
+```{r}
+# 9.1 Defina epsilon para exploração mínima
+agent$epsilon <- agent$epsilon_min
+
+# 9.2 Simule um episódio e registre sinais
+signals <- list()
+prices_tk <- df_prices %>%
+  filter(ticker == tk) %>%
+  arrange(date)
+
+dates <- prices_tk$date
+values <- prices_tk$close
+
+# Inicializar estado e inventário
+state <- getState(values, window_size, window_size + 1)
+inventory <- numeric(0)
+
+# Loop por toda a série temporal
+for (t in window_size:(length(values) - 1)) {
+  action <- agent$act(state)
+  current_date <- dates[t]
+  price <- values[t]
+  
+  # Registrar ação
+  if (action == 1) {
+    signals[[length(signals) + 1]] <- list(
+      date = current_date,
+      action = "BUY",
+      price = price
+    )
+    inventory <- c(inventory, price)
+  } else if (action == 2 && length(inventory) > 0) {
+    signals[[length(signals) + 1]] <- list(
+      date = current_date,
+      action = "SELL",
+      price = price
+    )
+    inventory <- inventory[-1]
+  }
+  
+  # Avançar para o próximo estado
+  next_state <- getState(values, t + 1, window_size + 1)
+  
+  # Garantir estado válido
+  if (length(next_state) == window_size) {
+    state <- next_state
+  }
+}
+
+# Converter para dataframe
+signals_df <- bind_rows(signals)
+
+# Exibir últimas 5 entradas
+tail(signals_df, 5)
+```
+
+```{r}
+library(plotly)
+library(dplyr)
+
+# 1) Gera sinais para cada ticker
+all_signals <- list()
+
+for (tk in tickers) {
+  # Configura epsilon mínimo
+  agent$epsilon <- agent$epsilon_min
+  
+  # Filtra e ordena dados do ticker
+  prices_tk <- df_prices %>%
+    filter(ticker == tk) %>%
+    arrange(date)
+  
+  dates <- prices_tk$date
+  values <- prices_tk$close
+  
+  # Inicializa estado e inventário
+  state <- getState(values, window_size, window_size + 1)
+  inventory <- numeric(0)
+  signals <- list()
+  
+  # Loop pela série temporal
+  for (t in window_size:(length(values) - 1)) {
+    action <- agent$act(state)
+    current_date <- dates[t]
+    price <- values[t]
+    
+    # Registra ação
+    if (action == 1) {
+      signals[[length(signals) + 1]] <- list(
+        date = current_date,
+        action = "BUY",
+        price = price
+      )
+      inventory <- c(inventory, price)
+    } else if (action == 2 && length(inventory) > 0) {
+      signals[[length(signals) + 1]] <- list(
+        date = current_date,
+        action = "SELL",
+        price = price
+      )
+      inventory <- inventory[-1]
+    }
+    
+    # Atualiza estado
+    next_state <- getState(values, t + 1, window_size + 1)
+    if (length(next_state) == window_size) {
+      state <- next_state
+    }
+  }
+  
+  # Converte sinais para dataframe
+  all_signals[[tk]] <- bind_rows(signals)
+}
+
+# 2) Cria um gráfico individual para cada ticker
+for (tk in tickers) {
+  # Filtra dados do ticker
+  prices_tk <- df_prices %>%
+    filter(ticker == tk) %>%
+    arrange(date)
+  
+  sig_df <- all_signals[[tk]]
+  
+  # Cria o gráfico base
+  fig <- plot_ly() %>%
+    add_trace(
+      x = prices_tk$date,
+      y = prices_tk$close,
+      type = 'scatter',
+      mode = 'lines',
+      name = 'Preço',
+      line = list(color = '#1f77b4', width = 1.5)
+    )
+  
+  # Adiciona sinais de compra se existirem
+  if (!is.null(sig_df) && nrow(sig_df) > 0) {
+    buy_df <- sig_df %>% filter(action == "BUY")
+    if (nrow(buy_df) > 0) {
+      fig <- fig %>%
+        add_trace(
+          x = buy_df$date,
+          y = buy_df$price,
+          type = 'scatter',
+          mode = 'markers',
+          marker = list(
+            symbol = 'triangle-up',
+            size = 10,
+            color = 'green',
+            line = list(color = 'darkgreen', width = 1)
+          ),
+          name = 'Compra'
+        )
+    }
+  }
+  
+  # Adiciona sinais de venda se existirem
+  if (!is.null(sig_df) && nrow(sig_df) > 0) {
+    sell_df <- sig_df %>% filter(action == "SELL")
+    if (nrow(sell_df) > 0) {
+      fig <- fig %>%
+        add_trace(
+          x = sell_df$date,
+          y = sell_df$price,
+          type = 'scatter',
+          mode = 'markers',
+          marker = list(
+            symbol = 'triangle-down',
+            size = 10,
+            color = 'red',
+            line = list(color = 'darkred', width = 1)
+          ),
+          name = 'Venda'
+        )
+    }
+  }
+  
+  # Configura layout do gráfico
+  fig <- fig %>%
+    layout(
+      title = paste("Sinais de Trading -", tk),
+      xaxis = list(title = "Data", gridcolor = '#f0f0f0'),
+      yaxis = list(title = "Preço (USD)", gridcolor = '#f0f0f0'),
+      plot_bgcolor = 'white',
+      paper_bgcolor = 'white',
+      legend = list(orientation = 'h', x = 0.5, y = -0.2, xanchor = 'center'),
+      margin = list(t = 50, b = 80),
+      hovermode = 'x unified'
+    ) %>%
+    config(displayModeBar = TRUE)
+  
+  # Exibe o gráfico
+  print(fig)
+}
+```
