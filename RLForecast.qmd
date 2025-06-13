@@ -1,5 +1,16 @@
 ---
-title: Reinforcement Learning Trading Strategy para Commodities Agrícolas
+title: "Reinforcement Learning Trading Strategy para Empresas de Tecnologia"
+format:
+  html:
+    self-contained: true
+    toc: true
+    code-tools: true
+    code-fold: true
+    df-print: paged
+    css: 
+      - styles.css
+      - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css
+editor: visual
 ---
 
 Este notebook adapta o estudo de caso original de Reinforcement Learning para trading, usando yahooquery para ingestão de dados e aplicando a estratégia aos tickers de commodities agrícolas.
@@ -342,50 +353,141 @@ for (tk in tickers) {
 
 ```
 
-## Interpretação Atualizada dos Resultados
+## **Análise Detalhada dos Resultados de Treinamento**
 
-O gráfico mostra resultados moderados, sem picos extremos, indicando que o agente está **aprendendo de forma mais estável**, porém ainda com bastante ruído. Veja como entender cada padrão:
+Os resultados mostram o desempenho do agente DQN em 50 episódios de treinamento para cada ativo, com métricas reportadas a cada 10 episódios. Vamos analisar padrões e insights:
 
-------------------------------------------------------------------------
+#### **1. SAP (SAP SE)**
 
-### 1. Episódio inicial com lucro elevado (ZC=F)
+-   **Desempenho**: Lucro extremamente volátil
 
--   No episódio 0, o ticker **ZC=F** obteve um lucro alto (\~6000 USD) devido a uma sequência de compras e vendas que coincidiram com movimentos de preço no início do treinamento.
--   Esse valor atípico provavelmente reflete **ações exploratórias** intensas com ε próximo a 1.
+    -   Pico no Ep20: R\$3,389.58
 
-------------------------------------------------------------------------
+    -   Queda no Ep30: R\$-9.09 (prejuízo)
 
-### 2. Convergência para lucros moderados
+    -   Recuperação final: R\$386.75
 
--   A partir do episódio 1 em diante, todos os tickers **flutuam ao redor de zero** com ganhos e perdas moderados (\<±2000 USD).
--   Isso sugere que o agente já **reduziu a exploração** (ε decaído) e começa a “assentar” sua política em padrões menos arriscados.
+-   **Perda (Loss)**: Consistentemente baixa (0.0000-0.0046)
 
-------------------------------------------------------------------------
+-   **Interpretação**:
 
-### 3. Ruído persistente
+    -   Estratégia encontrou oportunidades lucrativas no meio do treinamento
 
--   Apesar da convergência inicial, ainda há **oscilações**:
-    -   Alguns episódios geram ganhos pontuais (ex.: ZS=F nos episódios \~5 e \~8).\
-    -   Outros produzem perdas ligeiras (ex.: KE=F no episódio \~25).\
--   Esse **ruído** pode indicar que o agente não encontrou padrão suficientemente forte, ou que a rede está subajustada (underfitting).
+    -   Dificuldade em manter consistência (possível overfitting)
 
-------------------------------------------------------------------------
+    -   Baixa perda sugere que o modelo convergiu rapidamente
 
-### 4. Ausência de tendência crescente
+#### **2. CRM (Salesforce)**
 
--   **Não há uma curva claramente ascendente** ao longo dos episódios.\
--   Em um cenário de aprendizado ideal, o lucro médio por episódio tenderia a crescer de forma suave — aqui, isso não ocorre.
+-   **Desempenho**: Mais lucrativo mas altamente volátil
 
-------------------------------------------------------------------------
+    -   Crescimento impressionante: R\$5,499 → R\$17,210 (Ep10-30)
 
-### 5. Próximos ajustes recomendados
+    -   Queda drástica final: R\$1.05 no Ep50
 
-1.  **Diminuir ainda mais ε** após os episódios iniciais para focar na exploração das melhores ações aprendidas.\
-2.  **Aumentar a complexidade da rede** (camadas/neuronios) para capturar padrões mais sutis.\
-3.  **Implementar Replay Buffer** e **Target Network** para reduzir o ruído e estabilizar o Q-learning.\
-4.  **Ajustar funções de recompensa** (ex.: penalizar holding prolongado) para incentivar decisões mais decisivas.
+-   **Perda (Loss)**: Maior entre todos (0.0193 no pico)
 
-Com essas observações, você poderá direcionar esforços para estabilizar o aprendizado e extrair sinais de trading mais confiáveis.
+-   **Interpretação**:
+
+    -   Modelo identificou padrões lucrativos inicialmente
+
+    -   Queda final sugere:
+
+        -   Mudança nos padrões de mercado
+
+        -   Overfitting extremo
+
+        -   Necessidade de regularização
+
+#### **3. IBM (International Business Machines)**
+
+-   **Desempenho**: Crescimento consistente
+
+    -   Lucro aumentou 23x: R\$24 → R\$587
+
+    -   Baixa volatilidade relativa
+
+-   **Perda (Loss)**: Mínima (0.0000-0.0004)
+
+-   **Interpretação**:
+
+    -   Melhor aluno da classe
+
+    -   Estratégia adaptativa que melhorou com o tempo
+
+    -   Mercado com padrões estáveis que o modelo aprendeu bem
+
+#### **4. NOW (ServiceNow)**
+
+-   **Desempenho**: Mais consistente e lucrativo
+
+    -   Lucros estáveis: R\$2,628 - R\$3,282
+
+    -   Pequena tendência de alta
+
+-   **Perda (Loss)**: Baixa e estável (0.0001-0.0008)
+
+-   **Interpretação**:
+
+    -   Modelo encontrou estratégia robusta
+
+    -   Padrões de mercado favoráveis à abordagem DQN
+
+    -   Baixa perda indica convergência estável
+
+#### **5. ORCL (Oracle)**
+
+-   **Desempenho**: Lucros modestos mas consistentes
+
+    -   Crescimento constante: R\$61 → R\$168 (Ep10-40)
+
+    -   Queda final para R\$66
+
+-   **Perda (Loss)**: Praticamente zero
+
+-   **Interpretação**:
+
+    -   Mercado com menos oportunidades claras
+
+    -   Estratégia conservadora
+
+    -   Baixa perda pode indicar subaprendizado
+
+#### **6. MSFT (Microsoft)**
+
+-   **Desempenho**: Mais volátil com períodos negativos
+
+    -   Pico no Ep20: R\$1,281
+
+    -   Dois episódios negativos (Ep30 e Ep50)
+
+-   **Perda (Loss)**: Mínima (0.0000-0.0005)
+
+-   **Interpretação**:
+
+    -   Dificuldade em encontrar estratégia consistente
+
+    -   Mercado complexo com mudanças rápidas
+
+    -   Possível interferência de notícias/saídas de produtos
+
+### **Padrões Gerais e Insights**
+
+1.  **Relação Risco-Retorno**:
+
+    -   CRM ofereceu maiores retornos mas com risco extremo
+
+    -   NOW e IBM mostraram melhor equilíbrio
+
+    -   ORCL foi mais conservador
+
+2.  **Convergência do Modelo**:
+
+    -   Todos alcançaram ε mínimo (0.01) no Ep10
+
+    -   Perdas geralmente baixas → modelos convergiram
+
+    -   CRM teve perda mais alta → modelo mais instável
 
 # Extração de Sinais de Compra e Venda
 

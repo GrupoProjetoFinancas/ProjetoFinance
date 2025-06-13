@@ -254,25 +254,13 @@ O próximo bloco de código gera, para cada um dos quatro cenários (`hist`, `si
 
 ### 1. Dados e Pré-processamento
 
--   Lemos a planilha `retornos_e_volatilidades.xlsx`, que contém colunas `ret_<ativo>` com os **retornos diários simulados**.\
--   Para cada cenário $s$, montamos a matriz de retornos $$
-      R^{(s)} \in \mathbb R^{T\times n},  
-      \quad R^{(s)}_{t,j} = \text{retorno do ativo }j\text{ no dia }t.
-    $$
--   Removemos ativos com dados inválidos (Inf ou NaN) ou variância zero.
+-   Lemos a planilha `retornos_e_volatilidades.xlsx`, que contém colunas `ret_<ativo>` com os **retornos diários simulados**.
 
 ### 2. Simulação de Carteiras Aleatórias
 
--   Geramos $N=50\,000$ vetores de pesos $$
-      W_i \sim \mathrm{Dirichlet}(1,\dots,1),\quad i=1,\dots,N,
-      \;\sum_{j=1}^n w_{ij}=1,\;w_{ij}\ge0.
-    $$
+-   Geramos $N=50\,000$ vetores de pesos:
 -   Para cada carteira (i), calculamos:
-    -   **Retorno esperado**\
-        $$
-          R_i \;=\;\sum_{j=1}^n w_{ij}\,\mu_j,
-          \quad \mu_j = \frac1T\sum_{t=1}^T R^{(s)}_{t,j}.
-        $$
+    -   **Retorno esperado**
     -   **Risco** (desvio‐padrão ou idealmente GARCH(1,1) com Student-t assimétrica)
 
 ### 3. Carteira de Máximo Sharpe
@@ -281,16 +269,11 @@ O próximo bloco de código gera, para cada um dos quatro cenários (`hist`, `si
       S_i = \frac{R_i - R_f}{\sigma_i},
       \quad R_f = 0.
     $$
--   Seleciona a carteira $i^* = \arg\max_i S_i$ como a solução de **Melhor Relação Retorno/Risco**.
 
 ### 4. Fronteira Eficiente Empírica
 
--   Ordenamos as simulações por retorno $R_i$ crescente.\
--   Construímos o envelope de risco mínimo $\sigma$ para cada nível de $R$: $$
-      \text{fronteira} \;=\;\bigl\{(\sigma_i,R_i)\mid \sigma_i < \min_{j<i}\sigma_j\bigr\}.
-    $$
-
-### 5. Visualização com Plotly
+-   Ordenamos as simulações por retorno $R_i$ crescente.
+-   Visualização com Plotly
 
 Em cada um dos 4 subplots 2×2: - **Pontos cinza**: todas as simulações $(\sigma_i,R_i)$.\
 - **Linha vermelha**: fronteira eficiente empírica.\
@@ -414,17 +397,11 @@ mtext("Fronteiras Eficientes (Monte Carlo) por Cenário", outer = TRUE, cex = 1.
 
 Este bloco implementa um modelo de alocação de portfólio que **minimiza risco** e **maximiza retorno** ao mesmo tempo, usando:
 
--   **Modelo de Markowitz (Scalarizado)**\
-    $$
-      \min_{w}\;\underbrace{w^\top \Sigma\,w}_{\text{variância (risco)}} \;-\;\gamma\;\max \underbrace{\mu^\top w}_{\text{retorno esperado}}
-    $$ sujeito a\
-    $$
-      \sum_{i=1}^n w_i = 1,\quad w_i \ge w_{\min} \quad(\text{e}\;w_i\le1).
-    $$ Aqui fixamos $\gamma=1$ e $w_{\min}=5\%$.
+-   **Modelo de Markowitz (Scalarizado)**
 
--   **Evolução Diferencial**\
-    Um algoritmo genético de otimização numérica que explora **populações** de vetores $x\in[0,1]^n$ para encontrar o $w$ ótimo.\
-    A cada iteração, combina vetores, mutaciona, seleciona os melhores segundo a função-objetivo acima.
+    -   Um algoritmo genético de otimização numérica que explora **populações** de vetores para encontrar o vetor ótimo
+
+    -   A cada iteração, combina vetores, mutaciona, seleciona os melhores segundo a função-objetivo
 
 ------------------------------------------------------------------------
 
@@ -569,51 +546,6 @@ text(
 
 ## Análise de Performance e Drawdown — Carteira Ótima (sim1)
 
-Na próxima célula faremos:
-
-1.  **Carregamento dos dados**
-    -   Lemos o Excel `retornos_e_volatilidades.xlsx`, aba `sim1`, e extraímos apenas as colunas de retorno `ret_<ativo>`.\
-    -   Montamos um DataFrame `rets` com as séries de retorno diárias dos 22 dias simulados.
-2.  **Aplicação dos pesos ótimos**
-    -   Já tínhamos calculado em uma célula anterior o vetor `w_opt` com os pesos da carteira via Markowitz+DE.\
-    -   Multiplicamos:\
-        $$
-        r^{(p)}_t = \sum_{j} w_j\,r_{t,j},
-        $$ obtendo `port_ret`, a série de retorno diário da carteira.
-3.  **Cálculo da performance cumulativa**
-    -   Normalizamos o capital inicial para 1:\
-        $$
-          W_0 = 1,\quad
-          W_t = \prod_{i=1}^t (1 + r^{(p)}_i).
-        $$
-    -   Resultado em `wealth`, índice de riqueza ao longo dos 22 dias.
-4.  **Cálculo do drawdown**
-    -   Definimos o “pico até hoje”: $$
-        \displaystyle \text{peak}_t = \max_{s \le t} W_s.
-        $$\
-
-    -   Drawdown diário:
-
-        $$
-         \text{DD}_t = \frac{W_t - \text{peak}_t}{\text{peak}_t}.
-        $$
-
-    -   Identificamos o **drawdown máximo** como o menor valor de `DD_t`.
-5.  **Visualização Interativa**
-    -   Utilizamos **Plotly** com `make_subplots` para criar dois painéis:
-        -   **Superior:** curva de `wealth` ao longo do prazo.
-        -   **Inferior:** área preenchida do `drawdown`, realçando quedas percentuais.
-    -   O gráfico mostra de forma clara:
-        -   O **crescimento** acumulado da carteira.
-        -   O **maior recuo** percentual sofrido.
-
-------------------------------------------------------------------------
-
-**Por que é útil?**\
-- Permite ao decisor ver tanto o **ganho potencial** quanto o **risco de queda** em curto prazo.\
-- Dá transparência sobre *quando* e *quanto* a carteira pode retroceder antes de recuperar ganhos.\
-- Serve de base para avaliar se o portfólio atende à tolerância ao risco na janela de 22 dias.
-
 ```{r}
 #| echo: false
 library(readxl)
@@ -683,18 +615,7 @@ fig1
 fig2
 ```
 
-## Interpretação Objetiva — Carteira Ótima (sim1)
-
--   **Retorno total:** +1,50 % em 22 dias\
--   **Retorno médio diário:** ≈ 0,065 %\
--   **Pico histórico:** +2,70 % no meio do período\
--   **Drawdown máximo:** –1,33 %\
--   **Relação Drawdown/Retorno:** 1,33 % / 1,50 % ≈ 0,89
-
-**Conclusão rápida:**\
-A carteira gerou lucro consistente de cerca de 1,5 % com queda máxima limitada a 1,33 %, indicando um trade‐off risco/retorno favorável num horizonte curto.
-
-# Simulação Cenário 2 
+# Simulação Cenário 2
 
 ```{r}
 #| echo: false
